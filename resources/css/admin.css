@@ -1,0 +1,133 @@
+@import "classes.css";
+/*@import url('datatables.net-responsive-dt');*/
+/*@import url('datatables.net-select-dt');*/
+@import url('datatables.net-dt');
+/*@import url('datatables.net-responsive-dt');*/
+/*@import url('datatables.net-select-dt');*/
+/*@import "datatables/dataTables.tailwindcss.css";*/
+@import "easymde/dist/easymde.min.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .admin-link {
+        /*@apply block p-3 hover:bg-primary-200 dark:hover:bg-primary-800 rounded flex items-center gap-2 mb-1;*/
+        @apply block p-3 hover:ring-2 ring-gray-400 rounded flex items-center gap-2 mb-1 text-lg whitespace-nowrap;
+    }
+
+    .admin-link.is-active {
+        @apply pointer-events-none text-primary-800 dark:text-primary-400;
+    }
+
+    .appointments .btn {
+        font-family: Consolas, "Courier New", monospace;
+    }
+
+    .calendar-legend-color {
+        @apply inline-block w-4 h-4 outline outline-1 outline-gray-300 dark:outline-white;
+    }
+
+    .actions-col:has(.overlay.is-visible) {
+        @apply z-10;
+    }
+
+    .actions-col .btn,
+    .actions-col .btn-outline,
+    .toolbar .btn,
+    .toolbar .btn-outline {
+        @apply px-2 py-1.5;
+    }
+
+    #payment #total-wrapper {
+        @apply text-4xl;
+    }
+
+    #payment #total-wrapper::after {
+        /*content: '€';*/
+        content: '\20AC';
+        position: absolute;
+        font-weight: bold;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+    }
+
+    #payment #total-wrapper::before {
+        content: 'Total';
+        position: absolute;
+        font-weight: bold;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+    }
+
+    #payment #total-wrapper input {
+        @apply text-right text-4xl no-spin-buttons pe-9 ps-28 text-info font-bold;
+    }
+}
+
+/* Estilos de Datatables */
+table.dataTable.row-border > tbody > tr > *, table.dataTable.display > tbody > tr > * {
+    border: none;
+}
+
+table.dataTable > tbody > tr {
+    @apply even:bg-[#EBEBEB] dark:even:bg-gray-700;
+}
+
+th.dtfc-fixed-end,
+th.dtfc-fixed-start {
+    @apply bg-[#F9FAFB] dark:bg-[#252F3E] z-10;
+}
+
+table.dataTable > tbody > tr:nth-child(even) > td.dtfc-fixed-end,
+table.dataTable > tbody > tr:nth-child(even) > td.dtfc-fixed-start {
+    @apply bg-[#EBEBEB] dark:bg-gray-700;
+}
+
+table.dataTable > tbody > tr:nth-child(odd) > td.dtfc-fixed-end,
+table.dataTable > tbody > tr:nth-child(odd) > td.dtfc-fixed-start {
+    @apply bg-white dark:bg-gray-800;
+}
+
+/* Estilos de FullCalendar */
+.fc {
+    @apply text-lg;
+}
+
+.fc .fc-daygrid {
+    @apply bg-inherit;
+}
+
+.fc-day-bookable {
+    @apply bg-green-300 dark:bg-green-700 cursor-pointer;
+}
+
+.fc-daygrid-day.has-own {
+    /*@apply bg-[repeating-linear-gradient(-45deg,transparent,transparent_5px,white_5px,white_10px)] dark:bg-[repeating-linear-gradient(-45deg,transparent,transparent_5px,black_5px,black_10px)];*/
+    @apply bg-reserved;
+}
+
+.fc-day-holiday .fc-daygrid-day-number,
+.fc-day-sun .fc-daygrid-day-number {
+    @apply font-bold text-red-600;
+}
+
+.fc-day-not-bookable .fc-daygrid-day-top {
+    @apply opacity-30;
+}
+
+.fc-afternoon-full {
+    @apply bg-yellow-300 dark:bg-yellow-700;
+}
+
+.fc-morning-full.fc-afternoon-full {
+    @apply bg-red-300 dark:bg-red-700;
+}
+
+/* Alpine.js */
+[x-cloak] {
+    display: none !important;
+}

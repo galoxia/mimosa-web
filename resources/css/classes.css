@@ -1,0 +1,177 @@
+@layer base {
+    :root {
+        /*--fc-border-color: transparent;*/
+    }
+}
+
+@layer components {
+    label.required::after, /* Etiquetas con la clase "required" */
+    label:has(~ [required])::after, /* Etiquetas con un hermano requerido */
+    label:has(~ * > [required])::after { /* Etiquetas con un hermano que tiene un hijo directo requerido */
+        content: '*';
+        color: red;
+        margin-left: 4px;
+    }
+
+    .btn {
+        @apply text-white focus:outline-none focus:ring-4 font-medium rounded text-base px-4 py-2 inline-block;
+    }
+
+    .btn-primary {
+        @apply bg-primary-500 hover:bg-primary-600 focus:ring-primary-300 dark:bg-primary-800 dark:hover:bg-primary-700 dark:focus:ring-primary-500;
+    }
+
+    .btn-success {
+        @apply bg-green-700 hover:bg-green-800 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800;
+    }
+
+    .btn-info {
+        @apply bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800;
+    }
+
+    .btn-light {
+        @apply text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700;
+    }
+
+    .btn-danger {
+        @apply bg-red-700 hover:bg-red-800 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900;
+    }
+
+    .btn-outline {
+        @apply inline-block border focus:outline-none focus:ring-4 font-medium rounded text-xl px-4 py-2;
+    }
+
+    .btn-primary-outline {
+        @apply text-primary-700 hover:text-white border-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:border-primary-500 dark:text-primary-500 dark:hover:text-white dark:hover:bg-primary-600 dark:focus:ring-primary-800;
+    }
+
+    .btn-success-outline {
+        @apply text-green-700 hover:text-white border-green-700 hover:bg-green-800 focus:ring-green-300 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800;
+    }
+
+    .btn-info-outline {
+        @apply text-blue-700 hover:text-white border-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800;
+    }
+
+    .btn-light-outline {
+        @apply text-gray-900 hover:text-white border-gray-800 hover:bg-gray-900 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800;
+    }
+
+    .btn-danger-outline {
+        @apply text-red-700 hover:text-white border-red-700 hover:bg-red-800 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900;
+    }
+
+    .btn-warning-outline {
+        @apply text-yellow-400 hover:text-white border-yellow-400 hover:bg-yellow-500 focus:ring-yellow-300 dark:border-yellow-300 dark:text-yellow-300 dark:hover:text-white dark:hover:bg-yellow-400 dark:focus:ring-yellow-900;
+    }
+
+    .btn-purple-outline {
+        @apply text-purple-700 hover:text-white border-purple-700 hover:bg-purple-800 focus:ring-purple-300 dark:border-purple-400 dark:text-purple-400 dark:hover:text-white dark:hover:bg-purple-500 dark:focus:ring-purple-900;
+    }
+
+    .btn:disabled, .btn.btn-disabled, .btn-outline:disabled, .btn-outline.btn-disabled {
+        @apply opacity-50 cursor-not-allowed bg-gray-300 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-400;
+    }
+
+    .form-control:has(~ .validation-error:not(:empty)) {
+        @apply bg-red-50 border-red-600 text-red-900 dark:bg-red-900 dark:text-red-200 dark:border-red-400 placeholder-red-900 dark:placeholder-red-200;
+    }
+
+    .form-label {
+        @apply block mb-2 text-sm font-medium text-gray-900 dark:text-white;
+    }
+
+    .form-input {
+        @apply bg-gray-50 border border-gray-300 text-gray-900 rounded block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white;
+    }
+
+    .form-input:disabled, .form-input.disabled {
+        @apply opacity-60;
+    }
+
+    .form-select {
+        @apply form-input pe-7 appearance-none;
+    }
+
+    .form-select:not([multiple]) {
+        background-image: url("data:image/svg+xml,%3csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 10 6'%3e %3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 1 4 4 4-4'/%3e %3c/svg%3e");
+        background-position: right .5rem center;
+        background-repeat: no-repeat;
+        background-size: .75em .75em;
+    }
+
+    .form-textarea {
+        @apply form-input resize-none;
+    }
+
+    .form-label {
+        @apply block mb-2 text-sm font-medium text-gray-900 dark:text-white;
+    }
+
+    .text-muted {
+        @apply text-gray-600 dark:text-gray-400;
+    }
+
+    .text-primary {
+        @apply text-primary-700 dark:text-primary-400;
+    }
+
+    .text-info {
+        @apply text-blue-800 dark:text-blue-400;
+    }
+
+    .text-danger {
+        @apply text-red-700 dark:text-red-600;
+    }
+
+    .link-primary {
+        @apply text-primary hover:text-primary-800 dark:hover:text-primary-300;
+    }
+
+    .validation-error {
+        @apply text-danger text-sm;
+    }
+
+    .sliding-aside {
+        @apply fixed top-0 bottom-0 z-20 bg-gray-200 dark:bg-gray-800 border-[var(--fc-border-color)] transition-transform duration-300 [&.shown]:translate-x-0 overflow-y-auto;
+    }
+
+    .sliding-aside--right {
+        @apply right-0 border-l-2 translate-x-full;
+    }
+
+    .sliding-aside--left {
+        @apply left-0 border-r-2 -translate-x-full;
+    }
+
+    .bg-reserved-light {
+        background-image: linear-gradient(45deg, rgba(0, 0, 127, 0.1) 50%, transparent 50%);
+    }
+
+    .bg-reserved-dark {
+        background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.33) 50%, transparent 50%)
+    }
+
+    .bg-reserved {
+        @apply bg-reserved-light dark:bg-reserved-dark;
+    }
+
+    .status-bar {
+        @apply p-4 text-center fixed z-40 bottom-0 left-0 w-full transition-transform duration-700 text-black/80 dark:text-white/80
+    }
+
+    .card {
+        @apply max-w-sm text-wrap p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700;
+    }
+}
+
+.no-spin-buttons {
+    -moz-appearance: textfield;
+}
+
+.no-spin-buttons::-webkit-inner-spin-button,
+.no-spin-buttons::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+}
+
