@@ -290,8 +290,8 @@ class Student extends Model implements AdminModelInterface
                 'attributes' => [ 'x-ref' => 'single_marketing_consent', 'x-on:change' => 'refreshPreviewDelayed()' ],
             ],
             'is_delegate' => self::getFieldTemplates( '¿Delegado?' )['bool'],
-            'wants_photo_files' => self::getFieldTemplates( '¿Archivos?' )['bool'],
-            'wants_group_photos' => self::getFieldTemplates( '¿Grupales?' )['bool'],
+            'wants_photo_files' => self::getFieldTemplates( '¿Archivos digitales?' )['bool'],
+            'wants_group_photos' => self::getFieldTemplates( '¿Fotos grupales?' )['bool'],
             'product_id' => [
                 'type' => 'select',
                 'label' => 'Producto',

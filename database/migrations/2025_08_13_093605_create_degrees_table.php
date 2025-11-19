@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->date( 'closing_date' )->nullable();
             $table->foreignId( 'institution_id' )->constrained();
             $table->json( 'workshop_ids' )->nullable();
+            $table->integer( 'min_teacher_number' )->unsigned()->nullable();
+            $table->integer( 'max_teacher_number' )->unsigned()->nullable();
             $table->timestamps();
         } );
     }

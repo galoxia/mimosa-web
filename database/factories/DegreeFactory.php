@@ -18,8 +18,8 @@ class DegreeFactory extends Factory
 			'abbreviation' => $this->faker->unique()->regexify('[A-Z]{3}'),
 			'created_at' => Carbon::now(),
 			'updated_at' => Carbon::now(),
-
-//			'institution_id' => Institution::factory(),
+            'min_teacher_number' => $this->faker->numberBetween( 1, 10000 ),
+            'max_teacher_number' => $this->faker->numberBetween( 15000, 30000 ),
 		];
 	}
 }

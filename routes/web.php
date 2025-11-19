@@ -4,17 +4,13 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CRUDControllerDispatcher;
 use App\Http\Controllers\Admin\UserCRUDController;
-use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\DegreeController;
 use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Api\PriceController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\AdminMiddleware;
-use App\Models\Student;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get( '/', function () {
@@ -28,8 +24,6 @@ Route::get( '/', function () {
 } )->name( 'home' );
 
 Route::get( '/testing', function () {
-    $ids = Student::where('created_at', '>', now()->subDays( 30 ))->pluck('degree_id')->all();
-    dd($ids);
     return view( 'test' )->with( [
         'foo' => 1
     ] );
@@ -51,8 +45,9 @@ Route::middleware( AdminMiddleware::class )->group( function () {
 
     // API para el entorno de administración
     Route::post( '/api/messages/preview', [ MessageController::class, 'preview' ] )->name( 'api.messages.preview' );
+    Route::get( '/api/degrees/{degree}', [ DegreeController::class, 'show' ] )->name( 'api.degrees.show' );
     Route::get( '/api/degrees/{degree}/next-student-number', [ DegreeController::class, 'nextStudentNumber' ] )->name( 'api.degrees.next-student-number' );
-    Route::get( '/api/degrees/{degree}/next-teacher-number', [ DegreeController::class, 'nextTeacherNumber' ] )->name( 'api.degrees.next-teacher-number' );
+//    Route::get( '/api/degrees/{degree}/next-teacher-number', [ DegreeController::class, 'nextTeacherNumber' ] )->name( 'api.degrees.next-teacher-number' );
 //    Route::get( '/api/prices/{product}/{degree?}', [ PriceController::class, 'get' ] )->name( 'api.prices.get' );
     Route::get( '/api/products/{product}/{degree?}', [ ProductController::class, 'show' ] )->name( 'api.products.show' );
 } );

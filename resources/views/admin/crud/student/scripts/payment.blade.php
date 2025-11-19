@@ -31,10 +31,9 @@
                 },
 
                 async refreshPreview() {
-                    const { $refs } = this;
-                    const { single_marketing_consent, product_id, student_number, degree_id, identification_number, workshop_code, ticket_id, iframe, name, surname1, surname2 } = $refs;
-                    this.refreshingPreview = true;
+                    const { $refs: { single_marketing_consent, product_id, student_number, degree_id, identification_number, workshop_code, ticket_id, iframe, name, surname1, surname2 } } = this;
 
+                    this.refreshingPreview = true;
                     try {
                         const response = await axios.post( previewUrl, {
                             id: ticket_id.value,
@@ -85,24 +84,6 @@
                 async onChangeDegree() {
                     this.product_id ? await this.showProduct() : this.refreshPreviewDelayed();
                 },
-
-                printTicket() {
-                    const { $refs: { iframe } } = this;
-                    const doc = iframe.contentDocument || iframe.contentWindow.document;
-                    // Inyectar CSS de impresión
-                    // const style = doc.createElement( 'style' );
-                    // style.textContent = `
-                    //     @page { margin: 0; }
-                    //     @media print {
-                    //         td:has(> .content) {
-                    //             text-align: left;
-                    //         }
-                    //     }
-                    // `;
-                    // doc.head.appendChild( style );
-
-                    iframe.contentWindow.print();
-                }
             };
         } );
     } );

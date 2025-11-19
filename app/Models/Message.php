@@ -73,6 +73,8 @@ class Message extends Model implements AdminModelInterface
                 ':resto' => 'pending',
                 ':fecha' => 'today',
                 ':consentimiento_individual' => 'single_marketing_consent',
+                ':archivos_digitales' => 'wants_photo_files',
+                ':fotos_grupales' => 'wants_group_photos',
             ],
 //            'placeholders' => [ ':year', ':name', ':surname1', ':surname2', ':identification_number', ':degree', ':student_number', ':product', ':price', ':concepts', ':paid', ':pending', ':today', ':single_marketing_consent' ]
         ],

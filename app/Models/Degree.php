@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 
 class Degree extends Model implements AdminModelInterface
@@ -20,12 +21,18 @@ class Degree extends Model implements AdminModelInterface
         'closing_date',
         'institution_id',
         'workshop_ids',
+        'min_teacher_number',
+        'max_teacher_number',
     ];
 
     protected $casts = [
         'closing_date' => 'datetime:Y-m-d',
         'workshop_ids' => 'array',
+        'min_teacher_number' => 'integer',
+        'max_teacher_number' => 'integer',
     ];
+
+    protected $appends = [ 'next_teacher_number' ];
 
     protected static array $collections = [
         Price::class
@@ -41,9 +48,19 @@ class Degree extends Model implements AdminModelInterface
         return $this->hasMany( Student::class );
     }
 
-    function teachers(): HasMany
+    function teachings(): HasMany
     {
-        return $this->hasMany( Teacher::class );
+        return $this->hasMany( Teaching::class );
+    }
+
+    function getNextTeacherNumberAttribute(): int {
+        $max = $this->teachers()->max( 'teacher_number' );
+        return max( $max, $this->min_teacher_number - 1 ) + 1;
+    }
+
+    function teachers(): Collection
+    {
+        return $this->teachings()->get()->pluck( 'teacher' );
     }
 
     public function prices(): HasMany
@@ -66,6 +83,12 @@ class Degree extends Model implements AdminModelInterface
             'institution' => [
                 'type' => 'relation',
                 'label' => 'Centro',
+            ],
+            'min_teacher_number' => [
+                'label' => 'Mínimo profesores'
+            ],
+            'max_teacher_number' => [
+                'label' => 'Máximo profesores'
             ],
             'closing_date_formatted_es' => [
                 'type' => 'date',
@@ -102,6 +125,20 @@ class Degree extends Model implements AdminModelInterface
                 'required' => false,
                 'options' => Workshop::all()->pluck( 'name', 'id' ),
                 'validation' => [ '*' => [ 'integer', 'exists:workshops,id' ] ],
+            ],
+            'min_teacher_number' => [
+                'type' => 'number',
+                'required' => false,
+                'label' => 'Mínimo profesores',
+                'validation' => [ 'integer', 'gte:1' ],
+                'attributes' => [ 'min' => 1, 'inputmode' => 'numeric' ],
+            ],
+            'max_teacher_number' => [
+                'type' => 'number',
+                'required' => false,
+                'label' => 'Mínimo profesores',
+                'validation' => [ 'integer', 'gt:min_teacher_number' ],
+                'attributes' => [ 'min' => 2, 'inputmode' => 'numeric' ],
             ],
             'closing_date_formatted' => [
                 'type' => 'date',

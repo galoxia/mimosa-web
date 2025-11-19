@@ -282,7 +282,7 @@ class EntityCRUDController extends Controller
         /** @var class-string<AdminModelInterface> $model */
         $model = $request->query( 'model' );
         /** @var AdminModelInterface $entity */
-        $entity = $model::find( $request->query( 'id' ) );
+        $entity = $model::firstOrFail( $request->query( 'id' ) );
 
         if ( !$entity->isUpdatable() ) {
             abort( 404, 'Página no encontrada' );

@@ -63,7 +63,7 @@ class Teacher extends Model implements AdminModelInterface
             '_all' => [
                 'sections' => 3,
                 'cols' => 2,
-                'alpine' => 'payment',
+                'alpine' => 'teacherForm',
             ],
             'institution_id' => [
                 'type' => 'select',
@@ -78,7 +78,8 @@ class Teacher extends Model implements AdminModelInterface
                 'section' => 1,
                 'placeholder' => 'Elige la titulación',
                 'validation' => [ 'exists_with_foreign_keys:degrees,id,institution_id' ],
-                'attributes' => [ 'x-ref' => 'degree_id', 'x-on:change' => 'refreshPreviewDelayed()' ],
+                'attributes' => [ 'x-ref' => 'degree_id', 'x-on:change' => 'onChangeDegree()' ],
+                'footer' => '<p class="crud-field-footer text-muted text-sm mt-2" x-ref="degree_id_footer"></p>',
             ],
             'teacher_number' => [
                 'type' => 'number',
@@ -86,6 +87,7 @@ class Teacher extends Model implements AdminModelInterface
                 'section' => 1,
                 'attributes' => [ 'min' => 1, 'inputmode' => 'numeric', 'x-ref' => 'teacher_number', 'x-on:input' => 'refreshPreviewDelayed()' ],
                 'validation' => [ 'integer', 'gte:1', 'unique:teachers,teacher_number' ],
+                'footer' => '<p class="crud-field-footer text-muted text-sm mt-2" x-ref="teacher_number_footer"></p>',
             ],
             'name' => [
                 'label' => 'Nombre',
