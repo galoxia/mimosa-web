@@ -177,7 +177,10 @@ class EntityCRUDController extends Controller
         /** @var class-string<AdminModelInterface> $model */
         $model = $request->post( 'model' );
 
-        $fields = $this->parseFormDefinitions( $model::getCreateFormDefinitions() );
+        $fields = [];
+        // Para todos los campos que tengan en su config una prop "name", intercambiamos esa prop con la clave del campo.
+        foreach ( $model::getCreateFormDefinitions() as $field => $config ) $fields[ $config['name'] ?? $field ] = $config;
+        unset( $fields['_all'] );
 
         $validator = Validator::make( $request->all(), $this->getValidationRules( $fields ) );
         if ( $validator->fails() ) {
@@ -185,22 +188,37 @@ class EntityCRUDController extends Controller
         }
 
         $validated = $this->translateInputs( $fields, $validator->validated() );
-
+        /** @var AdminModelInterface $entity */
+        $entity = new $model();
         try {
-            DB::transaction( function () use ( $model, $validated, $fields, $request ) {
-                /** @var AdminModelInterface $entity */
-                $entity = new $model();
+            DB::transaction( function () use ( $model, $validated, $fields, $request, $entity ) {
                 $entity->fill( $validated );
+
                 $this->creating( $entity, $validated );
+                $this->saving( $entity, $validated );
                 $entity->save();
                 $this->saved( $entity, $validated );
+                $this->created( $entity, $validated );
+
                 $this->saveUploadedFiles( $entity, $request->allFiles() );
             } );
         } catch ( Throwable $e ) {
             Flash::error( $e->getMessage() );
         }
 
-        return $this->getResponse( $request );
+//        return $this->getResponse( $request );
+        $redirect_url = $request->post( 'redirect_url' );
+        if ( 'createThenCreate' === $request->post( 'action' ) ) {
+            $response = redirect()->back()->with( compact( 'redirect_url' ) );
+        } elseif ( 'createThenUpdate' === $request->post( 'action' ) ) {
+            $response = redirect()->route( 'admin.crud.get', [ 'action' => 'update', 'model' => $request->post( 'model' ), 'id' => $entity->id ] )->with( compact( 'redirect_url' ) );
+        } elseif ( $redirect_url ) {
+            $response = redirect( $redirect_url );
+        } else { // Mostramos el índice
+            $response = redirect()->route( 'admin.crud.get', [ 'action' => 'index', 'model' => $request->post( 'model' ) ] );
+        }
+
+        return $response;
     }
 
     private function getValidationRules( array $fields ): array
@@ -282,7 +300,7 @@ class EntityCRUDController extends Controller
         /** @var class-string<AdminModelInterface> $model */
         $model = $request->query( 'model' );
         /** @var AdminModelInterface $entity */
-        $entity = $model::firstOrFail( $request->query( 'id' ) );
+        $entity = $model::findOrFail( $request->query( 'id' ) );
 
         if ( !$entity->isUpdatable() ) {
             abort( 404, 'Página no encontrada' );
@@ -296,45 +314,42 @@ class EntityCRUDController extends Controller
         ] ) );
     }
 
-    private function getResponse( Request $request ): RedirectResponse
-    {
-        $redirect_url = $request->post( 'redirect_url' );
-        if ( 'saveAndContinue' === $request->post( 'action' ) ) {
-            $response = redirect()->back()->with( compact( 'redirect_url' ) );
-        } elseif ( $redirect_url ) {
-            $response = redirect( $redirect_url );
-        } else {
-            $response = redirect()->route( 'admin.crud.get', [ 'action' => 'index', 'model' => $request->post( 'model' ) ] );
-        }
-
-        return $response;
-    }
+//    protected function getResponse( Request $request ): RedirectResponse
+//    {
+//        $redirect_url = $request->post( 'redirect_url' );
+//        if ( 'saveAndContinue' === $request->post( 'action' ) ) {
+//            $response = redirect()->back()->with( compact( 'redirect_url' ) );
+//        } elseif ( $redirect_url ) {
+//            $response = redirect( $redirect_url );
+//        } else {
+//            $response = redirect()->route( 'admin.crud.get', [ 'action' => 'index', 'model' => $request->post( 'model' ) ] );
+//        }
+//
+//        return $response;
+//    }
 
     protected function creating( $entity, $validated )
     {
     }
 
-    protected function saved( $entity, $validated )
+    protected function updating( $entity, $validated )
     {
     }
 
-    private function parseFormDefinitions( array $fields ): array
+    protected function created( $entity, $validated )
     {
-        unset( $fields['_all'] );
-        // Para todos los campos que tengan en su config una prop "name", intercambiamos esa prop con la clave del campo. En la config creamos una prop "property" que guardará la clave original.
-        array_walk( $fields, function ( &$config, $field ) {
-            if ( isset( $config['name'] ) ) {
-                $config['property'] = $field;
-            }
-        } );
+    }
 
-        $keys = array_map( fn( $field, $config ) => $config['name'] ?? $field, array_keys( $fields ), $fields );
+    protected function updated( $entity, $validated )
+    {
+    }
 
-        array_walk( $fields, function ( &$config ) {
-            unset( $config['name'] );
-        } );
+    protected function saving( $entity, $validated )
+    {
+    }
 
-        return array_combine( $keys, array_values( $fields ) );
+    protected function saved( $entity, $validated )
+    {
     }
 
     /**
@@ -347,8 +362,12 @@ class EntityCRUDController extends Controller
         $id = $request->post( 'id' );
 
         try {
+            /** @var AdminModelInterface $entity */
             $entity = $model::findOrFail( $id );
-            $fields = $this->parseFormDefinitions( $entity->getUpdateFormDefinitions() );
+            $fields = [];
+            // Para todos los campos que tengan en su config una prop "name", intercambiamos esa prop con la clave del campo.
+            foreach ( $entity->getUpdateFormDefinitions() as $field => $config ) $fields[ $config['name'] ?? $field ] = $config;
+            unset( $fields['_all'] );
 
             $validator = Validator::make( $request->all(), $this->getValidationRules( $fields ) );
             if ( $validator->fails() ) {
@@ -356,13 +375,17 @@ class EntityCRUDController extends Controller
             }
             // Filtramos los valores validados a traves de los 'setters' (teniendo en cuenta parámetros como 'set_if_null').
             $validated = $this->translateInputs( $fields, $validator->validated() );
-            DB::transaction( function () use ( $model, $id, $validated, $request ) {
-                /** @var AdminModelInterface $entity */
+            DB::transaction( function () use ( $model, $validated, $request, $id ) {
                 $entity = $model::lockForUpdate()->findOrFail( $id );
+                $entity->fill( $validated );
 
-                $entity->update( $validated );
-                $this->saveUploadedFiles( $entity, $request->allFiles(), true );
+                $this->updating( $entity, $validated );
+                $this->saving( $entity, $validated );
+                $entity->save();
                 $this->saved( $entity, $validated );
+                $this->updated( $entity, $validated );
+
+                $this->saveUploadedFiles( $entity, $request->allFiles(), true );
             } );
         } catch ( ModelNotFoundException ) {
             Flash::error( sprintf( 'No se encontró %s con id %d en la base de datos.', strtolower( $model::getSingularName() ), $id ) );
@@ -370,7 +393,17 @@ class EntityCRUDController extends Controller
             Flash::error( $e->getMessage() );
         }
 
-        return $this->getResponse( $request );
+//        return $this->getResponse( $request );
+        $redirect_url = $request->post( 'redirect_url' );
+        if ( 'updateThenUpdate' === $request->post( 'action' ) ) {
+            $response = redirect()->back()->with( compact( 'redirect_url' ) );
+        } elseif ( $redirect_url ) {
+            $response = redirect( $redirect_url );
+        } else {
+            $response = redirect()->route( 'admin.crud.get', [ 'action' => 'index', 'model' => $request->post( 'model' ) ] );
+        }
+
+        return $response;
     }
 
     public function delete( Request $request )

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 class Student extends Model implements AdminModelInterface
@@ -24,6 +25,7 @@ class Student extends Model implements AdminModelInterface
         'surname2',
         'institution_id',
         'degree_id',
+        'product_id',
         'student_number',
         'identification_number',
         'phone',
@@ -77,6 +79,11 @@ class Student extends Model implements AdminModelInterface
         return $this->belongsTo( Degree::class );
     }
 
+    function product(): BelongsTo
+    {
+        return $this->belongsTo( Product::class );
+    }
+
     function payments(): HasMany
     {
         return $this->hasMany( Payment::class );
@@ -88,11 +95,11 @@ class Student extends Model implements AdminModelInterface
         return $this->payments()->ofDegree( $this->degree_id )->sum( 'amount' );
     }
 
-    function getProductIdAttribute(): ?int
-    {
-//        return $this->payments()->newest()->sum( 'amount' );
-        return $this->payments()->ofDegree( $this->degree_id )->latest()->first()?->product_id;
-    }
+//    function getProductIdAttribute(): ?int
+//    {
+////        return $this->payments()->newest()->sum( 'amount' );
+//        return $this->payments()->ofDegree( $this->degree_id )->latest()->first()?->product_id;
+//    }
 
     public function getCurrentPaymentsAttribute(): Collection
     {
@@ -106,10 +113,15 @@ class Student extends Model implements AdminModelInterface
         );
     }
 
+    function appointment(): HasOne
+    {
+        return $this->hasOne( Appointment::class, 'user_id', 'user_id' )->newest();
+    }
+
     function getAppointmentAttribute(): ?Appointment
     {
-//        return $this->appointments()?->newest()->first();
-        return $this->user?->appointment;
+//        return $this->user?->appointment;
+        return $this->getRelationValue( 'appointment' );
     }
 
     function scopeCurrent( $query )
@@ -134,39 +146,55 @@ class Student extends Model implements AdminModelInterface
         return implode( ' ', array_filter( [ $this->name, $this->surname1, $this->surname2 ] ) );
     }
 
-    protected static function getIndexRelations(): array
+    function scopeNewest( $query )
     {
-        return [ 'institution', 'degree', 'user.appointments.schedule' ];
-    }
-
-    static function filterIndexBuilder( array &$filters, Builder $builder ): Builder
-    {
-        if ( !$filters ) {
-            $builder
+        return $query->where( function ( $query ) {
+            $query
                 ->whereYear( 'created_at', DateUtils::getAcademicYear() )
                 ->orWhereHas( 'user.appointments', function ( $q ) {
                     $q->newest();
                 } );
+        } );
+    }
+
+
+    static function filterIndexBuilder( array &$filters, $builder ): Builder
+    {
+        if ( !$filters ) {
+            $builder->newest();
+//                ->whereYear( 'created_at', DateUtils::getAcademicYear() )
+//                ->orWhereHas( 'user.appointments', function ( $q ) {
+//                    $q->newest();
+//                } );
         }
 
         return $builder;
     }
 
+    protected static function getIndexRelations(): array
+    {
+        return [ /*'institution',*/ 'degree', 'user', /*'user.appointments.schedule',*/ 'product' ];
+    }
+
     static function getIndexDefinitions(): array
     {
         return [
+            'student_number' => [ 'label' => 'Número' ],
             'name' => [ 'label' => 'Nombre' ],
             'surname1' => [ 'label' => 'Apellido1' ],
             'surname2' => [ 'label' => 'Apellido2' ],
-            'institution' => [
-                'type' => 'relation',
-                'label' => 'Centro',
-            ],
+//            'institution' => [
+//                'type' => 'relation',
+//                'label' => 'Centro',
+//            ],
             'degree' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
             ],
-            'student_number' => [ 'label' => 'Número' ],
+            'product' => [
+                'type' => 'relation',
+                'label' => 'Producto',
+            ],
             'appointment_date_formatted_es' => [
                 'label' => 'Día',
                 'getter' => fn( Student $student ) => $student->appointment?->schedule_date_formatted_es,
@@ -290,13 +318,21 @@ class Student extends Model implements AdminModelInterface
                 'attributes' => [ 'x-ref' => 'single_marketing_consent', 'x-on:change' => 'refreshPreviewDelayed()' ],
             ],
             'is_delegate' => self::getFieldTemplates( '¿Delegado?' )['bool'],
-            'wants_photo_files' => self::getFieldTemplates( '¿Archivos digitales?' )['bool'],
-            'wants_group_photos' => self::getFieldTemplates( '¿Fotos grupales?' )['bool'],
+            'wants_photo_files' => [
+                ...self::getFieldTemplates( '¿Archivos digitales?' )['bool'],
+                'attributes' => [ 'x-ref' => 'wants_photo_files', 'x-on:change' => 'refreshPreviewDelayed()' ],
+            ],
+            'wants_group_photos' => [
+                ...self::getFieldTemplates( '¿Fotos grupales?' )['bool'],
+                'attributes' => [ 'x-ref' => 'wants_group_photos', 'x-on:change' => 'refreshPreviewDelayed()' ],
+            ],
             'product_id' => [
                 'type' => 'select',
                 'label' => 'Producto',
+                'required' => false,
                 'section' => 1,
                 'placeholder' => 'Elige un producto',
+                'validation' => [ 'exists:products,id' ],
                 'options' => Product::all()->pluck( 'name', 'id' ),
                 'attributes' => [ 'x-ref' => 'product_id', 'x-model' => 'product_id', 'x-on:change' => 'onChangeProduct()' ],
             ],
@@ -329,12 +365,12 @@ class Student extends Model implements AdminModelInterface
             'institution_id' => [
                 'type' => 'relation',
                 'label' => 'Centro de estudios',
-                'options' => fn() => Institution::has( 'students' ),
+                'options' => Institution::has( 'students' ),
             ],
             'degree_id' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
-                'options' => fn() => Degree::has( 'students' )->orderBy( 'name' ),
+                'options' => Degree::has( 'students' )->orderBy( 'name' ),
             ],
             'created_at' => [
                 'type' => 'date',

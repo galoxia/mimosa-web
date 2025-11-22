@@ -15,11 +15,11 @@ class DegreeController extends Controller
         return response()->json( compact( 'degree' ) );
     }
 
-    public function nextStudentNumber( Degree $degree )
-    {
-        return response()->json( [
-            'number' => $degree->students()->max( 'student_number' ) + 1
-        ] );
-    }
+//    public function nextStudentNumber( Degree $degree )
+//    {
+//        return response()->json( [
+//            'number' => $degree->students()->max( 'student_number' ) + 1
+//        ] );
+//    }
 
 }

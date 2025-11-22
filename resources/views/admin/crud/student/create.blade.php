@@ -10,6 +10,20 @@
     @include('admin.crud.student.partials.payment')
 @endsection
 
+@section('main-actions')
+    <button type="submit" form="crud-form" name="action" value="create" class="btn btn-success">
+        Crear
+    </button>
+
+    <button type="submit" form="crud-form" name="action" value="createThenCreate" class="btn btn-success">
+        Crear y añadir otro
+    </button>
+
+    <x-button type="submit" form="crud-form" name="action" value="createThenUpdate" icon="printer" variant="success">
+        Crear y editar
+    </x-button>
+@endsection
+
 @section('scripts')
     @include('admin.crud.student.scripts.payment')
 
@@ -20,6 +34,6 @@
         'degree_id' => old('degree_id', $entity->degree_id)
     ])
     @include('partials.scripts.dni-nie-validation', ['input_id' => 'identification_number'])
-    @include('admin.crud.student.scripts.set-next-student-number')
+{{--    @include('admin.crud.student.scripts.set-next-student-number')--}}
 @endsection
 

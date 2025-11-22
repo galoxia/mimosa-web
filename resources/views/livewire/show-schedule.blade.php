@@ -1,8 +1,7 @@
 <div>
     <div class="mt-4 p-4 appointments">
-        <p class="text-lg font-semibold mb-8">
-            Horas para el {{ $date }}
-        </p>
+        <p class="text-lg font-semibold">Horas para el {{ $date }}</p>
+        <p class="text-sm font-semibold mb-8 text-muted">en {{ $workshop_name }}</p>
 
         @if($date)
             <div class="flex gap-4">

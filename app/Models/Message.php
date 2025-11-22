@@ -60,7 +60,10 @@ class Message extends Model implements AdminModelInterface
         Message::TICKET => [
             'label' => 'Ticket',
             'placeholders' => [
-                ':año' => 'year',
+//                ':año' => 'year',
+                ':promoción_año_desde' => 'promotion_year_from',
+                ':promoción_año_hasta' => 'promotion_year_to',
+                ':promoción_año_hasta_yy' => 'promotion_year_to_yy',
                 ':código_taller' => 'workshop_code',
                 ':nombre' => 'name', ':apellido1' => 'surname1', ':apellido2' => 'surname2',
                 ':nif' => 'identification_number',
@@ -85,6 +88,7 @@ class Message extends Model implements AdminModelInterface
                 ':número' => 'teacher_number',
                 ':observaciones' => 'observations',
                 ':titulaciones' => 'degrees',
+                ':abreviatura' => 'abbreviation',
                 ':fecha' => 'today',
             ]
 //            'placeholders' => [ ':name', ':surname1', ':surname2', ':observations', ':degrees' ],

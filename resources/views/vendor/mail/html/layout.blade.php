@@ -29,17 +29,26 @@ margin: 0;
 }
 
 @media print {
+body {
+max-width: 9cm !important;
+}
 .logo {
 max-width: 260px !important;
 }
-body.type-{{ \App\Models\Message::TICKET }} td:has(> .content),
-body.type-{{ \App\Models\Message::TEACHER_TICKET }} td:has(> .content) {
-text-align: left;
+.content-cell {
+padding: 4px 8px !important;
 }
-body.type-{{ \App\Models\Message::TICKET }},
-body.type-{{ \App\Models\Message::TEACHER_TICKET }} {
-max-width: 10cm !important;
+td:has(> .content) {
+text-align: left !important;
 }
+{{--body.type-{{ \App\Models\Message::TICKET }} td:has(> .content),--}}
+{{--body.type-{{ \App\Models\Message::TEACHER_TICKET }} td:has(> .content) {--}}
+{{--text-align: left;--}}
+{{--}--}}
+{{--body.type-{{ \App\Models\Message::TICKET }},--}}
+{{--body.type-{{ \App\Models\Message::TEACHER_TICKET }} {--}}
+{{--max-width: 9cm !important;--}}
+{{--}--}}
 }
 
 </style>

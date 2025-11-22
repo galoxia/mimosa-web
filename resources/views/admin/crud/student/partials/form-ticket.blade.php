@@ -1,5 +1,5 @@
 <div class="p-4 rounded max-w-lg xl:max-w-xl border" x-cloak x-show="ready">
-    <select id="ticket_id" name="ticket_id" x-ref="ticket_id" class="form-select mb-4" @change="refreshPreview()">
+    <select id="ticket_id" name="ticket_id" x-ref="ticket_id" class="form-select mb-4" @change="refreshPreviewDelayed()">
         <option value="" hidden>Elige un ticket</option>
         @foreach($tickets as $index => $ticket)
             <option value="{{ $ticket->id }}" @selected($ticket->id == old('ticket_id', $tickets[0]->id))>
@@ -9,7 +9,7 @@
     </select>
 
     @php $workshop_code = $entity->appointment?->workshop_code @endphp
-    <select id="workshop_code" name="workshop_code" x-ref="workshop_code" class="form-select mb-4" @change="refreshPreview()">
+    <select id="workshop_code" name="workshop_code" x-ref="workshop_code" class="form-select mb-4" @change="refreshPreviewDelayed()">
         <option value="" hidden>Elige un taller</option>
         @foreach($workshops as $index => $workshop)
             <option value="{{ $workshop->code }}" @selected($workshop->code == old('workshop_code', $workshop_code ?? $workshops[0]->code))>
@@ -22,7 +22,7 @@
         <x-button
             type="button" icon="printer" variant="purple" :outline="true" aria-label="Imprimir ticket"
             x-bind:disabled="refreshingPreview"
-            x-on:click="$hrefs.iframe.contentWindow.document.print()"
+            x-on:click="$refs.iframe.contentWindow.print()"
         ></x-button>
     </div>
     <div class="h-full bg-gray-50 rounded border-double border-4 shadow-md" id="preview">

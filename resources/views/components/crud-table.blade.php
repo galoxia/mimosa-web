@@ -39,9 +39,13 @@
                                 {{-- $value es un modelo cuando el tipo es una relación --}}
                                 <td>
                                     @if($value)
-                                        <x-link :href="route('admin.crud.get', ['action' => 'update', 'model' => $value::class, 'id' => $value->id])">
+                                        @if($value->isUpdatable())
+                                            <x-link :href="route('admin.crud.get', ['action' => 'update', 'model' => $value::class, 'id' => $value->id, 'redirect_url' => $redirect_url])">
+                                                {{ $value }}
+                                            </x-link>
+                                        @else
                                             {{ $value }}
-                                        </x-link>
+                                        @endif
                                     @endif
                                 </td>
                                 @break

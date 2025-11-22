@@ -27,7 +27,7 @@ class ProductFactory extends Factory
         return [
             'name' => $this->faker->unique()->words( 2, true ),
             'description' => $this->faker->sentence( 10 ),
-            'price' => $this->faker->randomFloat( 2, 5, 2000 ),
+            'price' => $this->faker->randomFloat( 2, 5, 100 ),
             'discount' => $this->faker->randomElement( [ 0, 0, 0, $this->faker->numberBetween( 5, 50 ) ] ),
 //            'priority' => $this->faker->numberBetween( 1, 10 ),
         ];

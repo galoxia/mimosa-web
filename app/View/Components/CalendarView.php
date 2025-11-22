@@ -9,11 +9,14 @@ use Illuminate\View\Component;
 
 class CalendarView extends Component
 {
-    public Calendar $calendar;
+    /**
+     * @var Calendar[]
+     */
+    public array $calendars;
 
-    public function __construct( Calendar $calendar )
+    public function __construct( array $calendars )
     {
-        $this->calendar = $calendar;
+        $this->calendars = $calendars;
     }
 
     public function render(): View|Closure|string

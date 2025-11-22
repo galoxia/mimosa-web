@@ -174,7 +174,7 @@ trait AdminModelTrait
         }
     }
 
-    static function filterIndexBuilder( array &$filters, Builder $builder ): Builder {
+    static function filterIndexBuilder( array &$filters, $builder ): Builder {
         return $builder;
     }
 

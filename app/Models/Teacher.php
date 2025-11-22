@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
 
 class Teacher extends Model implements AdminModelInterface
 {
@@ -22,7 +23,10 @@ class Teacher extends Model implements AdminModelInterface
         'teacher_number' => 'integer',
     ];
 
-    protected $appends = [ 'degrees' ];
+    protected $appends = [
+        'degrees',
+//        'oldest_degree'
+    ];
 
     protected static array $collections = [
         Teaching::class
@@ -37,6 +41,11 @@ class Teacher extends Model implements AdminModelInterface
     {
         return $this->hasMany( Teaching::class );
     }
+
+//    public function getOldestDegreeAttribute(): ?Degree
+//    {
+//        return $this->teachings()->oldest()?->degree;
+//    }
 
     static function getIndexDefinitions(): array
     {
@@ -119,7 +128,9 @@ class Teacher extends Model implements AdminModelInterface
 
         $definitions['teacher_number']['validation'] = [ 'integer', 'gte:1', 'unique:teachers,teacher_number,' . $this->id ];
         $definitions['institution_id']['required'] = false;
+        $definitions['degree_id']['attributes']['x-on:change'] = '"await loadDegree(); refreshPreviewDelayed()"';
         $definitions['degree_id']['required'] = false;
+        $definitions['degree_id']['validation'][] = Rule::unique( 'teachings' )->where( 'teacher_id', $this->id );
 
         return $definitions;
     }

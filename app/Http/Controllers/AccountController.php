@@ -20,19 +20,24 @@ class AccountController extends Controller
     {
         $workshops = Workshop::newest()->get()->pluck( null, 'id' );
         $student = Student::getCurrent();
-        $appointment = $student?->appointment;
+//        $appointment = $student?->appointment;
 
         // Tenemos en cuenta si la carrera del estudiante filtra algún taller.
         if ( $workshop_ids = $student?->degree?->workshop_ids ) {
             $workshops = $workshops->filter( fn( $workshop ) => in_array( $workshop->id, $workshop_ids ) );
         }
 
-        $workshop = $workshops->get( $request->query( 'workshop_id', $appointment?->workshop_id ) ) ?? $workshops->first();
-        $calendar = $workshop?->calendars()->latest()->first();
+//        $workshop = $workshops->get( $request->query( 'workshop_id', $appointment?->workshop_id ) ) ?? $workshops->first();
+//        $calendar = $workshop?->calendars()->latest()->first();
+        $calendars = [];
+        foreach ( $workshops as $workshop ) {
+            $calendars[] = $workshop->calendars->first();
+        }
 
-        $options = $workshops->pluck( 'name', 'id' );
+//        $options = $workshops->pluck( 'name', 'id' );
 
-        return view( 'account.dashboard', compact( 'calendar', 'options' ) );
+//        return view( 'account.dashboard', compact( 'calendar', 'options' ) );
+        return view( 'account.dashboard', compact( 'calendars' ) );
     }
 
     public function showHelp()

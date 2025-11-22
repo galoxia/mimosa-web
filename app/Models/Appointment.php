@@ -133,7 +133,7 @@ class Appointment extends Model implements AdminModelInterface
     }
 
 //    static function getDefaultFilters(): array
-    static function filterIndexBuilder( array &$filters, Builder $builder ): Builder
+    static function filterIndexBuilder( array &$filters, $builder ): Builder
     {
         // Por defecto seleccionamos las citas del día de hoy
 //        return [ [ 'schedule#schedule_date', '=', now() ] ];
@@ -153,8 +153,7 @@ class Appointment extends Model implements AdminModelInterface
             'user#student#degree_id' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
-//                'builder' => fn() => Degree::withAppointments()->orderBy( 'degrees.name' ),
-                'options' => fn() => Degree::whereHas( 'students.user.appointments' )->orderBy( 'name' ),
+                'options' => Degree::whereHas( 'students.user.appointments' )->orderBy( 'name' ),
             ],
         ];
     }

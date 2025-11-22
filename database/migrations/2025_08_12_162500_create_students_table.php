@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string( 'surname2' )->nullable();
             $table->foreignId( 'institution_id' )->nullable()->constrained()->nullOnDelete();
             $table->foreignId( 'degree_id' )->nullable()->constrained()->nullOnDelete();
+            $table->foreignId( 'product_id' )->nullable()->constrained()->nullOnDelete();
             $table->integer( 'student_number' )->nullable();
             $table->string( 'identification_number' );
             $table->string( 'phone' );

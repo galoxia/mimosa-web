@@ -7,11 +7,11 @@
 @endsection
 
 @section('main-actions')
-    <button type="submit" form="crud-form" name="action" value="save" class="btn btn-success">
+    <button type="submit" form="crud-form" name="action" value="create" class="btn btn-success">
         Crear
     </button>
 
-    <button type="submit" form="crud-form" name="action" value="saveAndContinue" class="btn btn-success">
+    <button type="submit" form="crud-form" name="action" value="createThenCreate" class="btn btn-success">
         Crear y añadir otro
     </button>
 @endsection

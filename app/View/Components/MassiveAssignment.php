@@ -44,10 +44,10 @@ class MassiveAssignment extends Component
         $fields = $model::getMassiveAssignmentFields();
 
         foreach ( $fields as $field => $config ) {
-            $options = $config['options'] ?? null;
-            if ( is_callable( $options ) ) {
-                $options = $options()->get()->keyBy( 'id' )->all();
-            }
+            $options = ( $config['options'] ?? null )?->get()->keyBy( 'id' )->all();
+//            if ( is_callable( $options ) ) {
+//                $options = $options()->get()->keyBy( 'id' )->all();
+//            }
 
             $this->fields[ $field ] = [
                 ...$config,

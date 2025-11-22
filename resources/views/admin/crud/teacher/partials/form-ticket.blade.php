@@ -1,5 +1,5 @@
 <div class="p-4 rounded max-w-lg xl:max-w-xl border" x-cloak x-show="ready">
-    <select id="ticket_id" name="ticket_id" x-ref="ticket_id" class="form-select mb-4" @change="refreshPreview()">
+    <select id="ticket_id" name="ticket_id" x-ref="ticket_id" class="form-select mb-4" @change="refreshPreviewDelayed()">
         <option value="" hidden>Elige un ticket</option>
         @foreach($tickets as $index => $ticket)
             <option value="{{ $ticket->id }}" @selected($ticket->id == old('ticket_id', $tickets[0]->id))>
@@ -12,7 +12,7 @@
         <x-button
             type="button" icon="printer" variant="purple" :outline="true" aria-label="Imprimir ticket"
             x-bind:disabled="refreshingPreview"
-            x-on:click="$hrefs.iframe.contentWindow.document.print()"
+            x-on:click="$refs.iframe.contentWindow.print()"
         ></x-button>
     </div>
 

@@ -66,10 +66,10 @@ final class Filters extends Component
         foreach ( $fields as $field => $config ) {
             $type = $config['type'] ?? 'text';
             // $options = null indica un campo sin opciones, es decir un input en vez de un select.
-            $options = $config['options'] ?? null;
-            if ( is_callable( $options ) ) {
-                $options = $options()->get()->keyBy( 'id' )->all();
-            }
+            $options = ( $config['options'] ?? null )?->get()->keyBy( 'id' )->all();
+//            if ( is_callable( $options ) ) {
+//                $options = $options()->get()->keyBy( 'id' )->all();
+//            }
 
             $this->filters[ $field ] = [
                 ...$config,

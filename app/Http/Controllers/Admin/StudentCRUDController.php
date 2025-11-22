@@ -56,7 +56,7 @@ final class StudentCRUDController extends EntityCRUDController
             $entity->user->update( [ 'email' => $validatedEmail ] );
         }
         // Guardamos los datos del pago
-        if ( abs( $validated['total'] ) >= 0.01 ) {
+        if ( ( $validated['product_id'] ?? null ) && abs( $validated['total'] ) >= 0.01 ) {
             $product = Product::find( $validated['product_id'] );
             $degreePrice = $product->prices()->where( 'degree_id', $validated['degree_id'] )->first();
             $price = $degreePrice?->price ?? $product->price;
@@ -69,6 +69,18 @@ final class StudentCRUDController extends EntityCRUDController
                 'price' => $price,
                 'amount' => $validated['total']
             ] );
+        }
+    }
+
+    protected function saving( $entity, $validated )
+    {
+        // La primera vez que se escoge un producto para el alumno, imprimimos el ticket al volver al formulario
+        if (
+            in_array( request()->post( 'action' ), [ 'updateThenUpdate', 'createThenUpdate' ] ) &&
+            !$entity->getOriginal( 'product_id' ) &&
+            $entity->product_id
+        ) {
+            session()->flash( 'print_ticket' );
         }
     }
 }

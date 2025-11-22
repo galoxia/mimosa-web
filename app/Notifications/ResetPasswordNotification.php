@@ -56,7 +56,7 @@ class ResetPasswordNotification extends Notification
         $url = $this->resetUrl( $notifiable );
 
         $message = Message::ofType( Message::RESET_PASSWORD )->firstOrFail();
-
+        debug( $notifiable );
         return ( new MailMessage )
             ->subject( Lang::get( $message->subject ) )
             ->markdown( 'emails.messages.default', [
@@ -64,7 +64,7 @@ class ResetPasswordNotification extends Notification
                     'enlace' => $url,
                 ] ) ),
                 'config' => [
-                    'show_background' => true
+                    'show_background' => $message->show_background,
                 ]
             ] );
     }

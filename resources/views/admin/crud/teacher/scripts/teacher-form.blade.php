@@ -6,22 +6,23 @@
 
             return {
                 ready: false,
-                refreshingPreview: true,
                 teacher: @json($entity),
                 degree: null, // Titulación actualmente seleccionada
+                refreshingPreview: true,
 
                 refreshPreviewDelayed: null,
 
                 init() {
                     this.refreshPreviewDelayed = utils.debounce( this.refreshPreview, 1000 );
+                    this.refreshPreviewDelayed();
                     this.ready = true;
-                    this.refreshPreview();
                 },
 
                 async refreshPreview() {
                     const { $refs: { observations, teacher_number, ticket_id, iframe, name, surname1, surname2 } } = this;
                     const { degrees } = this.teacher;
                     const degree_names = degrees.map( d => d.name );
+                    const { name: current_degree_name, abbreviation: current_degree_abbreviation } = this.degree || {};
 
                     this.refreshingPreview = true;
                     try {
@@ -34,7 +35,8 @@
                                 teacher_number: teacher_number.value,
                                 observations: observations.value || '&nbsp;',
                                 today: new Date().toLocaleDateString( 'es-ES' ),
-                                degrees: [ ...degree_names, this.degree?.name ].filter( d => d ).join( '<br>' ),
+                                degrees: [ ...degree_names, current_degree_name ].filter( d => d ).join( '<br>' ),
+                                abbreviation: current_degree_abbreviation
                             }
                         } );
                         iframe.srcdoc = response.data.html;
@@ -44,8 +46,8 @@
                     this.refreshingPreview = false;
                 },
 
-                async onChangeDegree() {
-                    const { $refs: { teacher_number, teacher_number_footer, degree_id, degree_id_footer } } = this;
+                async loadDegree() {
+                    const { $refs: { degree_id, degree_id_footer } } = this;
 
                     if ( degree_id.value ) {
                         let url = showDegreeUrl.replace( ':degree', degree_id.value );
@@ -53,18 +55,36 @@
                         const { degree } = response.data;
 
                         this.degree = degree;
-                        const { next_teacher_number, min_teacher_number, max_teacher_number } = degree;
 
-                        degree_id_footer.innerHTML = `Min: ${ min_teacher_number }, Max: ${ max_teacher_number }`;
-                        teacher_number.value = next_teacher_number;
+                        const { first_available_teacher_number, next_teacher_number, min_teacher_number, max_teacher_number } = this.degree;
+                        degree_id_footer.innerHTML = `Mínimo: ${ min_teacher_number }, Máximo: ${ max_teacher_number }, Siguiente: ${ next_teacher_number }, Primero: ${ first_available_teacher_number }`;
+                    } else {
+                        this.degree = null;
+                    }
+
+                    // this.refreshPreviewDelayed();
+                },
+
+                setTeacherNumber() {
+                    const { $refs: { teacher_number } } = this;
+
+                    if ( this.degree ) {
+                        const { first_available_teacher_number, next_teacher_number, max_teacher_number } = this.degree;
+
                         if ( next_teacher_number > max_teacher_number ) {
-                            teacher_number_footer.innerHTML = `El número es superior al máximo de la titulación ${ max_teacher_number }`;
+                            teacher_number.value = first_available_teacher_number;
+                        } else {
+                            teacher_number.value = next_teacher_number;
                         }
                     } else {
                         teacher_number.value = null;
                     }
+                },
 
-                    await this.refreshPreview();
+                async onChangeDegree() {
+                    await this.loadDegree();
+                    this.setTeacherNumber();
+                    this.refreshPreviewDelayed();
                 },
             };
         } );

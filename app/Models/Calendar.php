@@ -138,7 +138,7 @@ class Calendar extends Model implements AdminModelInterface
             'workshop_id' => [
                 'type' => 'relation',
                 'label' => 'Taller',
-                'options' => fn() => Workshop::has( 'calendars' ),
+                'options' => Workshop::has( 'calendars' ),
             ],
             'created_at' => [
                 'type' => 'date',

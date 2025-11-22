@@ -32,10 +32,26 @@ class Degree extends Model implements AdminModelInterface
         'max_teacher_number' => 'integer',
     ];
 
-    protected $appends = [ 'next_teacher_number' ];
+//    protected $appends = [
+//        'next_teacher_number',
+//        'first_available_teacher_number',
+//        'next_student_number',
+//    ];
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+
+        return array_merge( $array, [
+            'next_teacher_number' => $this->next_teacher_number,
+            'first_available_teacher_number' => $this->first_available_teacher_number,
+            'next_student_number' => $this->next_student_number,
+        ] );
+    }
 
     protected static array $collections = [
-        Price::class
+        Student::class,
+        Teaching::class,
+        Price::class,
     ];
 
     function institution(): BelongsTo
@@ -53,9 +69,34 @@ class Degree extends Model implements AdminModelInterface
         return $this->hasMany( Teaching::class );
     }
 
-    function getNextTeacherNumberAttribute(): int {
+    function getNextTeacherNumberAttribute(): int
+    {
         $max = $this->teachers()->max( 'teacher_number' );
         return max( $max, $this->min_teacher_number - 1 ) + 1;
+    }
+
+    function getNextStudentNumberAttribute(): int
+    {
+        return $this->students()->max( 'student_number' ) + 1;
+    }
+
+    function getFirstAvailableTeacherNumberAttribute(): ?int
+    {
+        $taken = Teacher::whereBetween( 'teacher_number', [ $this->min_teacher_number, $this->max_teacher_number ] )
+            ->orderBy( 'teacher_number' )
+            ->pluck( 'teacher_number' );
+
+        $expected = $this->min_teacher_number;
+
+        foreach ( $taken as $number ) {
+            if ( $number > $expected ) { // Encontramos un hueco
+                return $expected;
+            }
+            $expected++;
+            if ( $expected > $this->max_teacher_number ) break;
+        }
+        // Si no hubo huecos en medio, el primer número libre es después del último
+        return $expected <= $this->max_teacher_number ? $expected : null;
     }
 
     function teachers(): Collection

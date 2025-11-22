@@ -24,7 +24,7 @@ interface AdminModelInterface
 
     static function getIndexBuilder( array $filters = [] ): Builder;
 
-    static function filterIndexBuilder( array &$filters, Builder $builder ): Builder;
+    static function filterIndexBuilder( array &$filters, $builder ): Builder;
 
     static function isCreatable(): bool;
 

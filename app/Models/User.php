@@ -115,10 +115,11 @@ class User extends Authenticatable implements AdminModelInterface
         return $this->appointment?->schedule_date->greaterThan( $when ) ?? true;
     }
 
-    public function getAppointmentAttribute(): ?Appointment
-    {
-        return $this->appointments()->newest()->first();
-    }
+//    private ?Appointment $_appointment = null;
+//    public function getAppointmentAttribute(): ?Appointment
+//    {
+//        return $this->_appointment ??= $this->appointments()->newest()->first();
+//    }
 
     public function canBeImpersonated(): bool
     {

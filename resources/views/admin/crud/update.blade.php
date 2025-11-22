@@ -7,11 +7,22 @@
 @endsection
 
 @section('main-actions')
-    <button type="submit" form="crud-form" name="action" value="save" class="btn btn-info">
+    @php $model = $entity::class @endphp
+    @if($model::isCreatable())
+        <x-button-link
+            :href="route('admin.crud.get', ['action' => 'create', 'model' => $model])"
+            icon="plus"
+            variant="success"
+        >
+            Crear {{ $model::getSingularName() }}
+        </x-button-link>
+    @endif
+
+    <button type="submit" form="crud-form" name="action" value="update" class="btn btn-info">
         Guardar
     </button>
 
-    <button type="submit" form="crud-form" name="action" value="saveAndContinue" class="btn btn-info">
+    <button type="submit" form="crud-form" name="action" value="updateThenUpdate" class="btn btn-info">
         Guardar y editar
     </button>
 @endsection

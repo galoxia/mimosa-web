@@ -1,5 +1,26 @@
 @extends('admin.crud.update')
 
+@section('main-actions')
+    @php $model = $entity::class @endphp
+    @if($model::isCreatable())
+        <x-button-link
+            :href="route('admin.crud.get', ['action' => 'create', 'model' => $model])"
+            icon="plus"
+            variant="success"
+        >
+            Crear {{ $model::getSingularName() }}
+        </x-button-link>
+    @endif
+
+    <button type="submit" form="crud-form" name="action" value="update" class="btn btn-info">
+        Guardar
+    </button>
+
+    <x-button type="submit" form="crud-form" name="action" value="updateThenUpdate" icon="printer" variant="info">
+        Guardar y editar
+    </x-button>
+@endsection
+
 @section('main-title')
     @parent
 
@@ -33,6 +54,6 @@
         'degree_id' => old('degree_id', $entity->degree_id)
     ])
     @include('partials.scripts.dni-nie-validation', ['input_id' => 'identification_number'])
-    @include('admin.crud.student.scripts.set-next-student-number')
+{{--    @include('admin.crud.student.scripts.set-next-student-number')--}}
 @endsection
 

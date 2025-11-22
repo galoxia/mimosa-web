@@ -41,7 +41,7 @@ class ShowSchedule extends Component
                 $this->schedule->load( 'appointments' );
 
                 $this->dispatch( 'status-message', status: sprintf( __( 'Tu cita a las %s fue anulada con éxito.' ), $time ) );
-                $this->dispatch( 'unbook', schedules: $this->schedule->calendar->JSONize()['schedules'] );
+                $this->dispatch( 'unbook', calendar_id: $this->schedule->calendar_id, schedules: $this->schedule->calendar->JSONize()['schedules'] );
             } );
         } catch ( DomainException $e ) {
             $this->dispatch( 'status-message', status: $e->getMessage(), variant: 'danger' );
@@ -88,7 +88,7 @@ class ShowSchedule extends Component
                 $this->schedule->load( 'appointments' );
 
                 $this->dispatch( 'status-message', status: sprintf( __( 'Tu cita a las %s fue reservada con éxito.' ), $time ) );
-                $this->dispatch( 'book', schedules: $this->schedule->calendar->JSONize()['schedules'] );
+                $this->dispatch( 'book', calendar_id: $this->schedule->calendar_id, schedules: $this->schedule->calendar->JSONize()['schedules'] );
             } );
         } catch ( DomainException $e ) {
             $this->dispatch( 'status-message', status: $e->getMessage(), variant: 'danger' );
@@ -104,6 +104,7 @@ class ShowSchedule extends Component
 
         return view( 'livewire.show-schedule', [
             'date' => $date,
+            'workshop_name' => $this->schedule?->calendar->workshop->name ?? '',
             'morning' => array_filter( $appointments, fn( $a ) => $a['group'] === 'morning' ),
             'afternoon' => array_filter( $appointments, fn( $a ) => $a['group'] === 'afternoon' ),
         ] );

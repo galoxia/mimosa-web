@@ -5,15 +5,15 @@ namespace Database\Seeders;
 use App\Models\Calendar;
 use App\Models\Degree;
 use App\Models\Institution;
-use App\Models\User;
 use App\Models\Product;
 use App\Models\Student;
-
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use App\Models\Workshop;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
         // Seed educational institutions
         $this->call( [
             InstitutionSeeder::class,
+            MessageSeeder::class,
         ] );
 
         // Seed workshops and calendars

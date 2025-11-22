@@ -24,6 +24,12 @@ Route::get( '/', function () {
 } )->name( 'home' );
 
 Route::get( '/testing', function () {
+    $workshops = \App\Models\Workshop::newest()->get();
+
+    $calendar = $workshops->first()->calendars->first();
+
+    debug( $calendar->workshop->name );
+
     return view( 'test' )->with( [
         'foo' => 1
     ] );
@@ -46,7 +52,7 @@ Route::middleware( AdminMiddleware::class )->group( function () {
     // API para el entorno de administración
     Route::post( '/api/messages/preview', [ MessageController::class, 'preview' ] )->name( 'api.messages.preview' );
     Route::get( '/api/degrees/{degree}', [ DegreeController::class, 'show' ] )->name( 'api.degrees.show' );
-    Route::get( '/api/degrees/{degree}/next-student-number', [ DegreeController::class, 'nextStudentNumber' ] )->name( 'api.degrees.next-student-number' );
+//    Route::get( '/api/degrees/{degree}/next-student-number', [ DegreeController::class, 'nextStudentNumber' ] )->name( 'api.degrees.next-student-number' );
 //    Route::get( '/api/degrees/{degree}/next-teacher-number', [ DegreeController::class, 'nextTeacherNumber' ] )->name( 'api.degrees.next-teacher-number' );
 //    Route::get( '/api/prices/{product}/{degree?}', [ PriceController::class, 'get' ] )->name( 'api.prices.get' );
     Route::get( '/api/products/{product}/{degree?}', [ ProductController::class, 'show' ] )->name( 'api.products.show' );

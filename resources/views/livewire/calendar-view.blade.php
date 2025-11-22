@@ -23,7 +23,7 @@
             </span>
         </div>
 
-        <div id="calendar-{{ $calendar->id }}" class="calendar"></div>
+        <div wire:ignore id="calendar-{{ $calendar->id }}" class="calendar"></div>
     @endforeach
 
     <div
@@ -71,6 +71,7 @@
 
         const calendars = {};
         @foreach($calendars as $calendar)
+            console.log( @json($calendar->id) );
             calendars[@json($calendar->id)] = { calendar: null, config: @json($calendar->JSONize()) };
         @endforeach
 
@@ -155,3 +156,4 @@
         } );
     } );
 </script>
+

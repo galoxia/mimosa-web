@@ -21,13 +21,30 @@ class Teaching extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-            'degree' => [
-                'type' => 'relation',
-                'label' => 'Titulación'
+            'teacher_number' => [
+                'label' => 'Número',
+                'getter' => fn( Teaching $teaching ) => $teaching->teacher->teacher_number,
             ],
             'teacher' => [
                 'type' => 'relation',
                 'label' => 'Profesor',
+            ],
+//            'degree.institution' => [
+//                'type' => 'relation',
+//                'label' => 'Institución',
+//                'getter' => fn( Teaching $teaching ) => $teaching->degree->institution,
+//            ],
+            'degree' => [
+                'type' => 'relation',
+                'label' => 'Titulación'
+            ],
+            'abbreviation' => [
+                'label' => 'Abreviatura',
+                'getter' => fn( Teaching $teaching ) => $teaching->degree->abbreviation,
+            ],
+            'observations' => [
+                'label' => 'Observaciones',
+                'getter' => fn( Teaching $teaching ) => $teaching->teacher->observations,
             ],
         ];
     }

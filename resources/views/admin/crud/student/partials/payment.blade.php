@@ -1,4 +1,4 @@
-<div id="payment" x-effect="pending = price - paid - total; refreshPreviewDelayed()" class="col-span-1 my-6" x-cloak x-show="ready">
+<div id="payment" x-effect="pending = Math.round((price - paid - total) * 100) / 100; refreshPreviewDelayed()" class="col-span-1 my-6" x-cloak x-show="ready">
     <div class="flex justify-between items-center form-input py-2 px-2 rounded mb-4">
         <span class="text-lg font-bold">Precio</span>
         <span class="text-2xl"><span x-text="price"></span> €</span>

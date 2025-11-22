@@ -36,7 +36,7 @@
             <select
                 id="{{ $name }}" name="{{ sprintf('%s%s', $name, $isMultiple ? '[]' : '') }}"
                 class="form-control form-select {{ $config['class'] ?? '' }}"
-                {{ $attributes }}
+                {!! $attributes !!}
                 @required($required)
             >
                 @if($config['placeholder'] ?? false)
