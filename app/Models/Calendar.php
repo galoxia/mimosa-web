@@ -62,19 +62,13 @@ class Calendar extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-            'id' => [
-                'label' => '#ID',
-            ],
             'start_date_formatted_es' => [
-                'type' => 'date',
                 'label' => 'Desde',
             ],
             'end_date_formatted_es' => [
-                'type' => 'date',
                 'label' => 'Hasta',
             ],
             'closing_date_formatted_es' => [
-                'type' => 'date',
                 'label' => 'Cierre',
             ],
             'morning_slots' => [
@@ -87,10 +81,6 @@ class Calendar extends Model implements AdminModelInterface
                 'type' => 'relation',
                 'label' => 'Taller',
             ],
-//            'created_at_formatted_es' => [
-//                'type' => 'date',
-//                'label' => 'Creado el',
-//            ],
         ];
     }
 
@@ -101,7 +91,7 @@ class Calendar extends Model implements AdminModelInterface
                 'label' => 'Taller',
                 'type' => 'select',
                 'placeholder' => 'Elige un taller',
-                'options' => Workshop::all()->pluck( 'name', 'id' ),
+                'options' => fn() => Workshop::all()->pluck( 'name', 'id' ),
             ],
             'start_date_formatted' => [
                 'type' => 'date',
@@ -138,7 +128,7 @@ class Calendar extends Model implements AdminModelInterface
             'workshop_id' => [
                 'type' => 'relation',
                 'label' => 'Taller',
-                'options' => Workshop::has( 'calendars' ),
+                'options' => fn() => Workshop::has( 'calendars' ),
             ],
             'created_at' => [
                 'type' => 'date',
@@ -275,6 +265,6 @@ class Calendar extends Model implements AdminModelInterface
 
     function __toString(): string
     {
-        return sprintf( '#%d', $this->id );
+        return sprintf( '%s/%s (#%s)', $this->start_date->format( 'y' ), $this->end_date->format( 'y' ), $this->workshop->code ?? $this->workshop_id );
     }
 }

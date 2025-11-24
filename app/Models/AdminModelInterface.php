@@ -18,11 +18,22 @@ interface AdminModelInterface
 
     static function getPluralName(): string;
 
-    function isIndexable(): bool;
+//    function isIndexable(): bool;
 
-    static function getIndexTable( array $filters = [] ): array;
+    static function getIndexTable(
+        array  $filters = [],
+        int    $start = 0,
+        int    $length = PHP_INT_MAX,
+        string $searchText = '',
+        array  $orderBy = [],
+        bool   $empty = false,
+    ): array;
 
     static function getIndexBuilder( array $filters = [] ): Builder;
+
+    static function getIndexColumnDefs(): array;
+
+    static function getOrderByField( string $field ): ?string;
 
     static function filterIndexBuilder( array &$filters, $builder ): Builder;
 

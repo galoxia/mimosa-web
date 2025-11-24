@@ -17,6 +17,7 @@ return new class extends Migration {
 			$table->time( 'afternoon_end_time' );
 			$table->integer( 'afternoon_slots' );
 			$table->foreignId( 'calendar_id' )->constrained( 'calendars' )->onDelete( 'cascade' );
+            $table->text( 'search_text' )->nullable();
 			$table->timestamps();
 		} );
 	}

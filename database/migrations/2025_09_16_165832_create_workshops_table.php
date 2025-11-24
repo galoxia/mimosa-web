@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->tinyText( 'code' )->nullable();
             $table->text( 'description' )->nullable();
             $table->tinyInteger( 'priority' )->unsigned()->default( 0 );
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }

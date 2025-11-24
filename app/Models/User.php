@@ -134,11 +134,11 @@ class User extends Authenticatable implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-//            'id' => [ 'label' => '#ID' ],
             'student' => [
                 'type' => 'relation',
                 'label' => 'Alumno',
             ],
+            'name' => [ 'label' => 'Nombre' ],
             'email' => [ 'label' => 'Email' ],
             'is_admin' => [
                 'type' => 'bool',
@@ -247,4 +247,21 @@ class User extends Authenticatable implements AdminModelInterface
             ]
         ];
     }
+
+    protected function filterSearchTokens( array $tokens ): array
+    {
+        $tokens[] = $this->role;
+        return $tokens;
+    }
+//    protected function updateSearchText(): void
+//    {
+//        $tokens = array_unique( array_filter( [
+//            $this->name,
+//            $this->student,
+//            $this->email,
+//            $this->role
+//        ] ) );
+//
+//        $this->search_text = implode( ' ', $tokens );
+//    }
 }

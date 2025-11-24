@@ -160,12 +160,12 @@ class Student extends Model implements AdminModelInterface
 
     static function filterIndexBuilder( array &$filters, $builder ): Builder
     {
-        if ( !$filters ) {
+        // Si estamos en una ventana de edición, entonces la tabla es un listado "hijo".
+        // En ese caso sí filtraremos (además) por los alumnos más recientes.
+        $editing = request()->query( 'id' ) && request()->query( 'model' );
+
+        if ( /*!$filters ||*/ $editing ) {
             $builder->newest();
-//                ->whereYear( 'created_at', DateUtils::getAcademicYear() )
-//                ->orWhereHas( 'user.appointments', function ( $q ) {
-//                    $q->newest();
-//                } );
         }
 
         return $builder;
@@ -183,10 +183,6 @@ class Student extends Model implements AdminModelInterface
             'name' => [ 'label' => 'Nombre' ],
             'surname1' => [ 'label' => 'Apellido1' ],
             'surname2' => [ 'label' => 'Apellido2' ],
-//            'institution' => [
-//                'type' => 'relation',
-//                'label' => 'Centro',
-//            ],
             'degree' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
@@ -333,7 +329,7 @@ class Student extends Model implements AdminModelInterface
                 'section' => 1,
                 'placeholder' => 'Elige un producto',
                 'validation' => [ 'exists:products,id' ],
-                'options' => Product::all()->pluck( 'name', 'id' ),
+                'options' => fn() => Product::all()->pluck( 'name', 'id' ),
                 'attributes' => [ 'x-ref' => 'product_id', 'x-model' => 'product_id', 'x-on:change' => 'onChangeProduct()' ],
             ],
             'total' => $total,
@@ -365,12 +361,12 @@ class Student extends Model implements AdminModelInterface
             'institution_id' => [
                 'type' => 'relation',
                 'label' => 'Centro de estudios',
-                'options' => Institution::has( 'students' ),
+                'options' => fn() => Institution::has( 'students' ),
             ],
             'degree_id' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
-                'options' => Degree::has( 'students' )->orderBy( 'name' ),
+                'options' => fn() => Degree::has( 'students' )->orderBy( 'name' ),
             ],
             'created_at' => [
                 'type' => 'date',
@@ -389,17 +385,18 @@ class Student extends Model implements AdminModelInterface
         return 'Alumnos';
     }
 
-//    protected static function booted(): void
+//    protected function updateSearchText(): void
 //    {
-//        parent::booted();
+//        $tokens = array_unique( array_filter( [
+//            $this->name,
+//            $this->surname1,
+//            $this->surname2,
+//            $this->degree,
+//            $this->product,
+//            $this->email,
+//            $this->user,
+//        ] ) );
 //
-//        static::updated( function ( Student $student ) {
-//            if (
-//                $student->wasChanged( 'degree_id' ) && // Si cambió la titulación, eliminamos la cita del estudiante para el año actual.
-//                $student->canBook() // Solo eliminamos la cita si el estudiante es capaz aún de mover la reserva.
-//            ) {
-//                $student->appointment?->delete();
-//            }
-//        } );
+//        $this->search_text = implode( ' ', $tokens );
 //    }
 }

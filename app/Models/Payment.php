@@ -52,19 +52,26 @@ class Payment extends Model implements AdminModelInterface
                 'type' => 'relation',
                 'label' => 'Producto',
             ],
-            'price' => [
+            'price_formatted' => [
                 'label' => 'Precio',
-                'format' => '%.2f€',
             ],
-            'amount' => [
+            'amount_formatted' => [
                 'label' => 'Pagado',
-                'format' => '%.2f€',
             ],
             'created_at_formatted_es' => [
-                'type' => 'date',
-                'label' => 'Creado el'
+                'label' => 'Creado el',
             ],
         ];
+    }
+
+    public function getPriceFormattedAttribute(): string
+    {
+        return sprintf( '%.2f€', $this->price );
+    }
+
+    public function getAmountFormattedAttribute(): string
+    {
+        return sprintf( '%.2f€', $this->amount );
     }
 
     public function student(): BelongsTo

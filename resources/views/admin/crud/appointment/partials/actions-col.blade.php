@@ -10,7 +10,7 @@
             variant="purple"
             :outline="true"
             @click="open()"
-            aria-label="Enviar mensaje/sms a {{ $row['entity']->user->public_name }}"
+            aria-label="Enviar mensaje/sms a {{ $entity->user->public_name }}"
             title="Enviar..."
         ></x-button>
 
@@ -31,7 +31,7 @@
                 <div class="flex flex-col xl:flex-row justify-between items-center gap-4">
                     <div class="card">
                         <form
-                            action="{{ route('admin.crud.users.send', ['user' => $row['entity']->user->id]) }}"
+                            action="{{ route('admin.crud.users.send', ['user' => $entity->user->id]) }}"
                             method="post"
                             class="js-confirm"
                         >
@@ -39,7 +39,7 @@
 
                             <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Enviar mensaje</h5>
                             <p class="mb-3 font-normal text-muted">
-                                Envía un email de la plantilla seleccionada a {{ $row['entity']->user->public_name }}.
+                                Envía un email de la plantilla seleccionada a {{ $entity->user->public_name }}.
                             </p>
 
                             <select name="message_id" id="message_id" class="form-select mb-3">
@@ -60,7 +60,7 @@
 
 {{--                    <div class="card">--}}
 {{--                        <form--}}
-{{--                            action="{{ route('admin.crud.users.sendSMS', ['user' => $row['entity']->user->id]) }}"--}}
+{{--                            action="{{ route('admin.crud.users.sendSMS', ['user' => $entity->user->id]) }}"--}}
 {{--                            method="post"--}}
 {{--                            class="js-confirm"--}}
 {{--                        >--}}
@@ -68,7 +68,7 @@
 
 {{--                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Enviar SMS</h5>--}}
 {{--                            <p class="mb-3 font-normal text-muted">--}}
-{{--                                Envía un SMS de la plantilla seleccionada a {{ $row['entity']->user->public_name }}.--}}
+{{--                                Envía un SMS de la plantilla seleccionada a {{ $entity->user->public_name }}.--}}
 {{--                            </p>--}}
 
 {{--                            <select name="message_id" id="message_id" class="form-select mb-3">--}}

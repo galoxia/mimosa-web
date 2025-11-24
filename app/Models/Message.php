@@ -140,15 +140,13 @@ class Message extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-//            'id' => [
-//                'label' => '#ID',
-//            ],
             'name' => [
                 'label' => 'Nombre'
             ],
             'type' => [
                 'label' => 'Tipo',
                 'getter' => fn( Message $message ) => self::TYPES[ $message->type ]['label'],
+                'orderable' => true,
             ],
             'priority' => [
                 'label' => 'Prioridad',
@@ -166,8 +164,9 @@ class Message extends Model implements AdminModelInterface
             'body' => [
                 'label' => 'Cuerpo',
                 'getter' => fn( Message $message ) => sprintf( '%s%s', substr( $message->body, 0, 50 ), strlen( $message->body ) > 50 ? '...' : '' ),
+                'searchable' => false,
             ],
-            'attachments' => [
+            'attachment_count' => [
                 'label' => '#Adjuntos',
                 'getter' => fn( Message $message ) => count( $message->attachments ?? [] ),
             ],

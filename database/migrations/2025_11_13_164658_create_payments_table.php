@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->decimal( 'price' );
             $table->decimal( 'discount' )->nullable();
             $table->decimal( 'amount' );
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }

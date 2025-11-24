@@ -1,6 +1,8 @@
 export default function initDataTables() {
     const $dataTables = $( '.js-datatable' );
-    if ( !$dataTables.length ) return;
+    const $ajaxDataTables = $( '.js-ajax-datatable' );
+
+    if ( !$dataTables.length && !$ajaxDataTables.length ) return;
 
     ( async () => {
         const [ { default: DataTable }, , , { default: language } ] = await Promise.all( [
@@ -19,9 +21,9 @@ export default function initDataTables() {
         $dataTables.each( function ( _, element ) {
             new DataTable( element, {
                 language,
-                columnDefs: [
-                    { targets: 'js-dt-actions', width: '1%', orderable: false, responsivePriority: 1 }
-                ],
+                // columnDefs: [
+                //     { targets: 'js-dt-actions', width: '1%', orderable: false, searchable: false, className: 'actions-col' }
+                // ],
                 // responsive: true,
                 // order: [ [ 0, 'desc' ], [ 1, 'asc' ] ],
                 order: [],
@@ -36,6 +38,39 @@ export default function initDataTables() {
                     $wrapper.children( '.spinner' ).addClass( 'hidden' );
                 },
             } );
+        } );
+
+        $ajaxDataTables.each( function ( _, element ) {
+            const $wrapper = $( element ).closest( '.js-wrapper' );
+            const $spinner = $wrapper.children( '.spinner' );
+
+            new DataTable( element, {
+                language,
+                // columnDefs: [
+                //     { targets: 'js-dt-actions', width: '1%', orderable: false, searchable: false, className: 'actions-col' }
+                // ],
+                order: [],
+                fixedColumns: { start: 1, end: 1 },
+                scrollX: true,
+                initComplete() {
+                    $wrapper.removeClass( 'min-h-[25vh]' );
+                },
+                ajax: async function ( data, callback, settings ) {
+                    data.model = element.dataset.model;
+                    const url = element.dataset.ajaxUrl;
+                    const { data: result } = await axios.post( url, data );
+                    callback( result );
+                },
+                serverSide: true,
+            } );
+
+            $( element )
+                .on( 'preXhr.dt', function () {
+                    $spinner.removeClass( 'hidden' );
+                } )
+                .on( 'xhr.dt', function () {
+                    $spinner.addClass( 'hidden' );
+                } );
         } );
 
     } )();

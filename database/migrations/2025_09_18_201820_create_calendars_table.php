@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->time( 'afternoon_end_time' );
             $table->integer( 'afternoon_slots' );
 			$table->foreignId( 'workshop_id' )->constrained( 'workshops' );
+            $table->text( 'search_text' )->nullable();
 			$table->timestamps();
 		} );
 	}

@@ -33,19 +33,12 @@ class Institution extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-//            'id' => [
-//                'label' => '#ID',
-//            ],
             'name' => [
                 'label' => 'Nombre'
             ],
-            'degrees_count' => [
+            'degree_count' => [
                 'type' => 'collection',
                 'label' => '#Carreras'
-            ],
-            'created_at_formatted_es' => [
-                'type' => 'date',
-                'label' => 'Creada el',
             ],
         ];
     }

@@ -33,9 +33,6 @@ class Workshop extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-//            'id' => [
-//                'label' => '#ID',
-//            ],
             'name' => [
                 'label' => 'Nombre'
             ],

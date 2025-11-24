@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId( 'teacher_id' )->constrained()->onDelete( 'cascade' );
             $table->foreignId( 'degree_id' )->constrained()->onDelete( 'cascade' );
             $table->unique( [ 'teacher_id', 'degree_id' ] );
+            $table->text( 'search_text' )->nullable();
 
             $table->timestamps();
         });

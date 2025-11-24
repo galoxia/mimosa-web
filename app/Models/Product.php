@@ -58,20 +58,27 @@ class Product extends Model implements AdminModelInterface
                 'label' => 'Nombre'
             ],
             'description' => [
-                'label' => 'Descripción'
+                'label' => 'Descripción',
             ],
-            'price' => [
+            'price_formatted' => [
                 'label' => 'Precio por defecto',
-                'format' => '%.2f€',
             ],
-            'concepts' => [
+            'concept_count' => [
                 'label' => '#Conceptos',
                 'getter' => fn( Product $product ) => count( array_filter( preg_split( '/\r\n|\r|\n/', $product->concepts ?? '' ) ) ),
             ],
-//            'priority' => [
-//                'label' => 'Prioridad',
-//            ],
         ];
+    }
+
+    public function getPriceFormattedAttribute(): string
+    {
+        return sprintf( '%.2f€', $this->price );
+    }
+
+    protected function filterSearchTokens( array $tokens ): array
+    {
+        $tokens[] = implode( ' ', array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $this->concepts ?? '' ) ) ) );
+        return $tokens;
     }
 
     static function getCreateFormDefinitions(): array

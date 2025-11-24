@@ -22,6 +22,7 @@ final class TeacherCRUDController extends EntityCRUDController
     protected function filterShowUpdateData( array $data ): array
     {
         return array_merge( $this->filterShowCreateData( $data ), [
+            //...
         ] );
     }
 

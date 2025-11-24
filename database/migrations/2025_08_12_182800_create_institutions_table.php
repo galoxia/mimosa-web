@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('institutions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         });
     }

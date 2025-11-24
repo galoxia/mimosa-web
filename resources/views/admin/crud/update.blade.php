@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <x-crud-table :table="$config['table']" :redirect_url="$redirect_url"></x-crud-table>
+            <x-crud-table :table="$config['table']"></x-crud-table>
         </div>
     @endforeach
 @endsection

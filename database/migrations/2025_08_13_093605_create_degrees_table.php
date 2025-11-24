@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->json( 'workshop_ids' )->nullable();
             $table->integer( 'min_teacher_number' )->unsigned()->nullable();
             $table->integer( 'max_teacher_number' )->unsigned()->nullable();
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }

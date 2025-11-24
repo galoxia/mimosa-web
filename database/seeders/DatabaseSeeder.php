@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
             Product::factory()->count( 5 )->create();
 
             // Seed students
-            Student::factory( 50 )->make()->each( function ( $student ) use ( $institutions ) {
+            Student::factory( 200 )->make()->each( function ( $student ) use ( $institutions ) {
                 $institution = $institutions->random();
                 $degree = $institution->degrees->random();
 

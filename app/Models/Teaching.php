@@ -29,11 +29,6 @@ class Teaching extends Model implements AdminModelInterface
                 'type' => 'relation',
                 'label' => 'Profesor',
             ],
-//            'degree.institution' => [
-//                'type' => 'relation',
-//                'label' => 'Institución',
-//                'getter' => fn( Teaching $teaching ) => $teaching->degree->institution,
-//            ],
             'degree' => [
                 'type' => 'relation',
                 'label' => 'Titulación'

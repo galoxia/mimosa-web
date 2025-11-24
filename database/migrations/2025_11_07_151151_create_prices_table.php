@@ -16,10 +16,9 @@ return new class extends Migration {
             $table->foreignId( 'product_id' )->constrained()->onDelete( 'cascade' );
             $table->foreignId( 'degree_id' )->constrained()->onDelete( 'cascade' );
             $table->unique( [ 'product_id', 'degree_id' ] );
-
             $table->decimal( 'price' );
             $table->tinyInteger( 'discount' )->default( 0 );
-
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }

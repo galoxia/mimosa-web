@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CRUDControllerDispatcher;
+use App\Http\Controllers\Admin\EntityCRUDController;
 use App\Http\Controllers\Admin\UserCRUDController;
 use App\Http\Controllers\Api\DegreeController;
 use App\Http\Controllers\Api\MessageController;
@@ -24,12 +25,6 @@ Route::get( '/', function () {
 } )->name( 'home' );
 
 Route::get( '/testing', function () {
-    $workshops = \App\Models\Workshop::newest()->get();
-
-    $calendar = $workshops->first()->calendars->first();
-
-    debug( $calendar->workshop->name );
-
     return view( 'test' )->with( [
         'foo' => 1
     ] );
@@ -45,6 +40,7 @@ Route::middleware( AdminMiddleware::class )->group( function () {
     Route::post( '/admin/crud/{action}', [ CRUDControllerDispatcher::class, 'post' ] )
         ->where( 'action', 'filter|massive-update|create|update' )->name( 'admin.crud.post' );
     Route::delete( '/admin/crud/delete', [ CRUDControllerDispatcher::class, 'delete' ] )->name( 'admin.crud.delete' );
+    Route::post( '/admin/crud/datatable', [ EntityCRUDController::class, 'datatable' ] )->name( 'admin.crud.datatable' );
     // Rutas de controladores específicos
     Route::post( '/admin/crud/users/{user}/send', [ UserCRUDController::class, 'send' ] )->name( 'admin.crud.users.send' );
 //    Route::post( '/admin/crud/users/{user}/sendSMS', [ UserCRUDController::class, 'sendSMS' ] )->name( 'admin.crud.users.sendSMS' );

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Storage;
+use Throwable;
+use function Termwind\render;
 
 /**
  * @mixin Model
@@ -65,7 +67,7 @@ trait AdminModelTrait
                 'pluralName' => $model::getPluralName(),
                 'creatable' => $model::isCreatable(),
                 // Filtramos la tabla para que solo muestre los registros de la colección.
-                'table' => $model::getIndexTable( [ [ $this->getForeignKey(), '=', $this->id ] ] ),
+                'table' => $model::getIndexTable( /*[ [ $this->getForeignKey(), '=', $this->id ] ]*/ ),
             ];
         }
         return $collections;
@@ -174,7 +176,8 @@ trait AdminModelTrait
         }
     }
 
-    static function filterIndexBuilder( array &$filters, $builder ): Builder {
+    static function filterIndexBuilder( array &$filters, $builder ): Builder
+    {
         return $builder;
     }
 
@@ -183,9 +186,17 @@ trait AdminModelTrait
         $model = self::class;
 
         $builder = $model::with( $model::getIndexRelations() )->withCount( $model::getIndexCollections() );
-        // Permite a las clases hijas redefinir $filters o añadir condiciones directamente al $builder.
+        // Permite a las clases hijas redefinir $filters o añadir condiciones directamente al $builder
         self::filterIndexBuilder( $filters, $builder );
-        // Apply filters
+        // ¿Estamos en la ventana de edición de un modelo "padre"?
+        $id = request()->query( 'id' );
+        /** @var class-string<AdminModelInterface> $parentModel */
+        $parentModel = request()->query( 'model' );
+        // Filtraremos solo los registros asociados al modelo padre. La relación por clave foránea debería existir
+        if ( $id && $parentModel ) {
+            $filters[] = [ ( new $parentModel )->getForeignKey(), '=', $id ];
+        }
+        // Aplicamos los filtros calculados
         foreach ( $filters as $filter ) {
             list( $field, $operator, $values ) = $filter;
             self::andWhere( $builder, $field, $operator, is_array( $values ) ? $values : [ $values ] );
@@ -204,36 +215,46 @@ trait AdminModelTrait
         return [ [ 'created_at', 'desc' ] ];
     }
 
-    static function getIndexTable( array $filters = [] ): array
+    static function getIndexTable(
+        array  $filters = [],
+        int    $start = 0,
+        int    $length = PHP_INT_MAX,
+        string $searchText = '',
+        array  $orderBy = [],
+        bool   $empty = false,
+    ): array
     {
         $model = self::class;
         $definitions = $model::getIndexDefinitions();
         $table = [
             'model' => $model,
             'headers' => array_combine( array_keys( $definitions ), array_column( $definitions, 'label' ) ),
-            'slug' => $model::getClassSlug(),
-            'rows' => []
+            'rows' => [],
+            'columnDefs' => json_encode( $model::getIndexColumnDefs() ),
         ];
 
-        $builder = $model::getIndexBuilder( $filters /*?: self::getDefaultFilters()*/ );
+        if ( $empty ) {
+            return $table;
+        }
+
+        $builder = $model::getIndexBuilder( $filters );
         foreach ( $model::getIndexOrderBy() as $entry ) {
             $builder->orderBy( ...$entry );
         }
+
+        $table['totalCount'] = $builder->count();
+        // TODO: Añadir los filtros según la búsqueda global de DataTables.
+        //...
+        $table['filteredCount'] = $builder->count();
+
         /** @var Collection<int, AdminModelInterface> $entities */
         $entities = $builder
-            ->get()
-            ->filter( fn( $entity ) => $entity->isIndexable() );
+            ->skip( $start )
+            ->take( $length )
+            ->get();
 
         foreach ( $entities as $entity ) {
-            $indexFields = $entity->getIndexFields();
-            foreach ( $indexFields as &$config ) {
-                // Aplicar formato si se ha definido en el campo. Solo tiene sentido en los campos del índice, por eso se hace aquí.
-                if ( isset( $config['format'] ) ) {
-                    $config['value'] = sprintf( $config['format'], $config['value'] );
-                }
-            }
-
-            $table['rows'][] = [ 'entity' => $entity, 'fields' => $indexFields ];
+            $table['rows'][] = array_column( $entity->getIndexFields(), 'value' );
         }
 
         return $table;
@@ -277,14 +298,28 @@ trait AdminModelTrait
         return $definitions;
     }
 
+    /**
+     * @throws Throwable
+     */
     function getIndexFields(): array
     {
         $definitions = self::getIndexDefinitions();
+        $editing = request()->query( 'id' ) && request()->query( 'model' );
+        $redirect_url = $editing ? url()->full() : null;
+
         foreach ( $definitions as $field => &$config ) {
             if ( $field !== '_all' ) {
+                $type = isset( $config['component'] ) ? 'component' : ( $config['type'] ?? 'text' );
                 $config['value'] = isset( $config['getter'] ) ? $config['getter']( $this ) : $this->{$field};
+                // Pasamos el valor por la plantilla de celda para obtener el valor definitivo
+                if ( view()->exists( "admin.crud.partials.crud-$type-cell" ) ) {
+                    $config['value'] = view( "admin.crud.partials.crud-$type-cell", compact( 'config', 'redirect_url' ) )->render();
+                }
             }
         }
+        // Añadimos el campo de acciones
+        $definitions['_actions']['value'] = view( 'admin.crud.partials.actions-col', [ 'entity' => $this, 'redirect_url' => $redirect_url ] )->render();
+
         return $definitions;
     }
 
@@ -298,11 +333,6 @@ trait AdminModelTrait
         $fields = array_keys( array_filter( self::getIndexDefinitions(), fn( $field ) => 'collection' === ( $field['type'] ?? 'text' ) ) );
         // Las colecciones terminan en '_count' (ej. 'students_count') -> se lo quitamos.
         return array_map( fn( $field ) => preg_replace( '/_count$/', '', $field ), $fields );
-    }
-
-    function isIndexable(): bool
-    {
-        return !empty( self::getIndexDefinitions() );
     }
 
     static function isCreatable(): bool
@@ -360,8 +390,85 @@ trait AdminModelTrait
         return $this->loadCount( $relations );
     }
 
+    protected function filterSearchTokens( array $tokens ): array
+    {
+        return $tokens;
+    }
+
+    protected static function isSearchable( string $field, array $config ): bool
+    {
+        return
+            ( $config['searchable'] ?? true ) &&
+            !in_array( $config['type'] ?? 'text', [ 'collection', 'bool' ] ) &&
+            !preg_match( '/(formatted(_.+)?|priority|number|slots|amount|count|price|type)$/', $field );
+    }
+
+    protected static function isOrderable( string $field, array $config ): bool
+    {
+        return
+            ( $config['orderable'] ?? true ) &&
+            ( $config['type'] ?? 'text' !== 'collection' ) &&
+            ( !( $config['getter'] ?? false ) || ( $config['orderable'] ?? false ) ) &&
+            !preg_match( '/(observations|description)$/', $field );
+    }
+
+    public static function getOrderByField( string $field ): ?string
+    {
+        $orderByField = null;
+        $definitions = self::getIndexDefinitions();
+
+        if ( $config = $definitions[ $field ] ?? null ) {
+            $type = $config['type'] ?? 'text';
+            if ( self::isOrderable( $field, $config ) ) {
+                if ( $type === 'relation' ) {
+                    $orderByField = "{$field}_id";
+                } else {
+                    $orderByField = preg_replace( '/_formatted(_.+)?$/', '', $field );
+                }
+            }
+        }
+
+        return $orderByField;
+    }
+
+    protected function updateSearchText(): void
+    {
+        $tokens = [];
+        foreach ( self::getIndexDefinitions() as $field => $config ) {
+            if ( self::isSearchable( $field, $config ) ) {
+                $tokens[] = isset( $config['getter'] ) ? $config['getter']( $this ) : $this->{$field};
+            }
+        }
+        $tokens = $this->filterSearchTokens( array_unique( array_filter( $tokens ) ) );
+        $tokens = array_map( 'trim', array_unique( array_filter( $tokens ) ) );
+        $this->setAttribute( 'search_text', implode( ' ', $tokens ) );
+    }
+
+    static function getIndexColumnDefs(): array
+    {
+        $definitions = self::getIndexDefinitions();
+        $defs = array_map( fn( string $field, int $index, array $config ) => [
+            'targets' => $index,
+            'orderable' => self::isOrderable( $field, $config ),
+            'searchable' => self::isSearchable( $field, $config ),
+            'className' => sprintf( '%1$s-%2$s-col %2$s-col', self::getClassSlug(), $field ),
+        ], array_keys( $definitions ), array_keys( array_values( $definitions ) ), $definitions );
+//            + array_filter( [
+//                'width' => $config['crud_cell_width'] ?? '',
+//                'className' => $config['crud_cell_class'] ?? '',
+//            ] )
+//            , array_keys( array_values( $definitions ) ), $definitions );
+
+        $defs[] = [ 'targets' => count( $definitions ), 'width' => '1%', 'orderable' => false, 'searchable' => false, 'className' => 'actions-col' ];
+        return $defs;
+    }
+
     protected static function booted(): void
     {
+        static::saving( function ( $entity ) {
+            $entity->updateSearchText();
+        } );
+
         static::deleted( function ( $entity ) {
             $path = sprintf( '%s/%d', Str::plural( self::getClassSlug() ), $entity->id );
             Storage::deleteDirectory( $path );

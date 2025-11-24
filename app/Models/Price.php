@@ -45,11 +45,15 @@ class Price extends Pivot implements AdminModelInterface
                 'type' => 'relation',
                 'label' => 'Producto',
             ],
-            'price' => [
+            'price_formatted' => [
                 'label' => 'Precio',
-                'format' => '%.2f€',
             ],
         ];
+    }
+
+    public function getPriceFormattedAttribute(): string
+    {
+        return sprintf( '%.2f€', $this->price );
     }
 
     static function getCreateFormDefinitions(): array
@@ -71,7 +75,7 @@ class Price extends Pivot implements AdminModelInterface
                 'label' => 'Producto',
                 'type' => 'select',
                 'placeholder' => 'Elige un producto',
-                'options' => Product::all()->pluck( 'name', 'id' ),
+                'options' => fn() => Product::all()->pluck( 'name', 'id' ),
             ],
             'price' => self::getFieldTemplates()['price'],
         ];

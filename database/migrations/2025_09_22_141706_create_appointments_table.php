@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->time( 'appointment_time' );
             $table->foreignId( 'schedule_id' )->constrained( 'schedules' )->onDelete( 'cascade' );;
 			$table->foreignId( 'user_id' )->nullable();
+            $table->text( 'search_text' )->nullable()->nullable();
 			$table->timestamps();
 		} );
 	}

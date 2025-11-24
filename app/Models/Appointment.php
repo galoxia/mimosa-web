@@ -108,11 +108,9 @@ class Appointment extends Model implements AdminModelInterface
     {
         return [
             'appointment_time_formatted' => [
-                'type' => 'time',
                 'label' => 'Hora',
             ],
             'appointment_date_formatted_es' => [
-                'type' => 'date',
                 'label' => 'Día',
             ],
             'student' => [
@@ -121,13 +119,16 @@ class Appointment extends Model implements AdminModelInterface
             ],
             'user_email' => [
                 'label' => 'Email',
+                'orderable' => false,
             ],
             'student_phone' => [
                 'label' => 'Teléfono',
+                'orderable' => false,
             ],
             'student_degree' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
+                'orderable' => false,
             ],
         ];
     }
@@ -136,7 +137,6 @@ class Appointment extends Model implements AdminModelInterface
     static function filterIndexBuilder( array &$filters, $builder ): Builder
     {
         // Por defecto seleccionamos las citas del día de hoy
-//        return [ [ 'schedule#schedule_date', '=', now() ] ];
         if ( !$filters ) {
             $builder->whereHas( 'schedule', fn( $q ) => $q->whereDate( 'schedule_date', now() ) );
         }
@@ -153,7 +153,7 @@ class Appointment extends Model implements AdminModelInterface
             'user#student#degree_id' => [
                 'type' => 'relation',
                 'label' => 'Titulación',
-                'options' => Degree::whereHas( 'students.user.appointments' )->orderBy( 'name' ),
+                'options' => fn() => Degree::whereHas( 'students.user.appointments' )->orderBy( 'name' ),
             ],
         ];
     }

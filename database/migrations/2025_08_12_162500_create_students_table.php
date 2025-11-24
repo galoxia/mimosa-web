@@ -29,6 +29,7 @@ return new class extends Migration {
             $table->boolean( 'is_delegate' )->default( false );
             $table->boolean( 'wants_photo_files' )->default( false );
             $table->boolean( 'wants_group_photos' )->default( false );
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }

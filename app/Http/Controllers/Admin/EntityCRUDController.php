@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminModelInterface;
+use App\Models\Student;
 use App\Services\Flash;
+use Blade;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -314,20 +316,6 @@ class EntityCRUDController extends Controller
         ] ) );
     }
 
-//    protected function getResponse( Request $request ): RedirectResponse
-//    {
-//        $redirect_url = $request->post( 'redirect_url' );
-//        if ( 'saveAndContinue' === $request->post( 'action' ) ) {
-//            $response = redirect()->back()->with( compact( 'redirect_url' ) );
-//        } elseif ( $redirect_url ) {
-//            $response = redirect( $redirect_url );
-//        } else {
-//            $response = redirect()->route( 'admin.crud.get', [ 'action' => 'index', 'model' => $request->post( 'model' ) ] );
-//        }
-//
-//        return $response;
-//    }
-
     protected function creating( $entity, $validated )
     {
     }
@@ -428,4 +416,29 @@ class EntityCRUDController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @throws Throwable
+     */
+    public function datatable( Request $request )
+    {
+        $posted = $request->post();
+        /** @var class-string<AdminModelInterface> $model */
+        $model = $posted['model'];
+
+        $table = $model::getIndexTable(
+            session( "filters.$model.parsed", [] ),
+            $posted['start'],
+            $posted['length'],
+        );
+
+        return response()->json( [
+            'draw' => (int)$posted['draw'],
+            'recordsTotal' => $table['totalCount'],
+            'recordsFiltered' => $table['filteredCount'],
+            'data' => $table['rows'],
+//            'error' => '',
+        ] );
+    }
+
 }
+

@@ -12,6 +12,12 @@ class DegreeController extends Controller
 {
     public function show( Degree $degree )
     {
+//        $degree->append([
+//            'next_teacher_number',
+//            'first_available_teacher_number',
+//            'next_student_number',
+//        ]);
+
         return response()->json( compact( 'degree' ) );
     }
 

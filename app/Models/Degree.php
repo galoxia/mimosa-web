@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use JsonSerializable;
 
 
-class Degree extends Model implements AdminModelInterface
+class Degree extends Model implements AdminModelInterface, JsonSerializable
 {
     use AdminModelTrait;
     use HasFactory;
@@ -32,21 +32,11 @@ class Degree extends Model implements AdminModelInterface
         'max_teacher_number' => 'integer',
     ];
 
-//    protected $appends = [
-//        'next_teacher_number',
-//        'first_available_teacher_number',
-//        'next_student_number',
-//    ];
-    public function toArray(): array
-    {
-        $array = parent::toArray();
-
-        return array_merge( $array, [
-            'next_teacher_number' => $this->next_teacher_number,
-            'first_available_teacher_number' => $this->first_available_teacher_number,
-            'next_student_number' => $this->next_student_number,
-        ] );
-    }
+    protected $appends = [
+        'next_teacher_number',
+        'first_available_teacher_number',
+        'next_student_number',
+    ];
 
     protected static array $collections = [
         Student::class,
@@ -112,9 +102,6 @@ class Degree extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-//            'id' => [
-//                'label' => '#ID',
-//            ],
             'name' => [
                 'label' => 'Nombre'
             ],
@@ -126,18 +113,13 @@ class Degree extends Model implements AdminModelInterface
                 'label' => 'Centro',
             ],
             'min_teacher_number' => [
-                'label' => 'Mínimo profesores'
+                'label' => 'Mínimo profesores',
             ],
             'max_teacher_number' => [
-                'label' => 'Máximo profesores'
+                'label' => 'Máximo profesores',
             ],
             'closing_date_formatted_es' => [
-                'type' => 'date',
                 'label' => 'Cierre',
-            ],
-            'created_at_formatted_es' => [
-                'type' => 'date',
-                'label' => 'Creada el',
             ],
         ];
     }
@@ -155,7 +137,7 @@ class Degree extends Model implements AdminModelInterface
                 'label' => 'Centro',
                 'type' => 'select',
                 'placeholder' => 'Elige un centro de estudios',
-                'options' => Institution::all()->pluck( 'name', 'id' ),
+                'options' => fn() => Institution::all()->pluck( 'name', 'id' ),
             ],
             'workshop_ids' => [
                 'label' => 'Talleres',
@@ -164,7 +146,7 @@ class Degree extends Model implements AdminModelInterface
                     'multiple' => true,
                 ],
                 'required' => false,
-                'options' => Workshop::all()->pluck( 'name', 'id' ),
+                'options' => fn() => Workshop::all()->pluck( 'name', 'id' ),
                 'validation' => [ '*' => [ 'integer', 'exists:workshops,id' ] ],
             ],
             'min_teacher_number' => [

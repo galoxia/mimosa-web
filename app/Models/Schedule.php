@@ -61,9 +61,7 @@ class Schedule extends Model implements AdminModelInterface
     static function getIndexDefinitions(): array
     {
         return [
-            'id' => [
-                'label' => '#ID',
-            ],
+//            'id' => [ 'label' => 'ID' ],
             'schedule_date_formatted_es' => [
                 'type' => 'date',
                 'label' => 'Día',
@@ -77,7 +75,7 @@ class Schedule extends Model implements AdminModelInterface
                 'label' => 'Mañanas a',
             ],
             'morning_slots' => [
-                'label' => 'Huecos'
+                'label' => 'Huecos',
             ],
             'afternoon_start_time_formatted' => [
                 'type' => 'time',
@@ -88,7 +86,7 @@ class Schedule extends Model implements AdminModelInterface
                 'label' => 'Tardes a',
             ],
             'afternoon_slots' => [
-                'label' => 'Huecos'
+                'label' => 'Huecos',
             ],
             'appointments_count' => [
                 'type' => 'collection',
@@ -98,10 +96,6 @@ class Schedule extends Model implements AdminModelInterface
                 'type' => 'relation',
                 'label' => 'Calendario',
             ],
-//            'created_at_formatted_es' => [
-//                'type' => 'date',
-//                'label' => 'Creado el',
-//            ],
         ];
     }
 
@@ -208,7 +202,7 @@ class Schedule extends Model implements AdminModelInterface
             'calendar_id' => [
                 'type' => 'relation',
                 'label' => 'Calendario',
-                'options' => Calendar::has( 'schedules' ),
+                'options' => fn() => Calendar::has( 'schedules' ),
             ],
         ];
     }
@@ -226,11 +220,7 @@ class Schedule extends Model implements AdminModelInterface
 //    static function getDefaultFilters(): array
     static function filterIndexBuilder( array &$filters, $builder ): Builder
     {
-        // Por defecto seleccionamos los horarios de los calendarios más recientes (deberían tener la misma fecha de inicio)
-//        $calendars = Calendar::newest()->pluck( 'id' )->toArray();
-//
-//        return $calendars ? [ [ 'calendar_id', 'in', $calendars ] ] : [];
-        if ( !$filters && ( $calendars = Calendar::newest()->pluck( 'id' )->toArray() ) ) {
+        if ( $calendars = Calendar::newest()->pluck( 'id' )->toArray() ) {
             $builder->whereIn( 'calendar_id', $calendars );
         }
         return $builder;

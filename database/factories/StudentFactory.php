@@ -35,7 +35,7 @@ class StudentFactory extends Factory
             'name' => $name,
             'surname1' => $surname1,
             'surname2' => $surname2,
-            'student_number' => $this->faker->unique()->numberBetween( 1, 100 ),
+            'student_number' => $this->faker->unique()->numberBetween( 1, 30000 ),
             'identification_number' => $this->faker->unique()->bothify( $identification_template ),
             'phone' => $this->faker->phoneNumber(),
             'alt_phone' => $this->faker->optional()->phoneNumber(),

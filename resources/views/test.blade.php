@@ -1,14 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
-@section('title', 'Testing')
-
-@section('head')
+@section('main-title')
+    <h1 class="text-3xl font-bold">Testing</h1>
 @endsection
 
-@section('main')
-    <div class="container mx-auto px-4 py-8">
-        {{ $foo }}
-    </div>
+@section('main-content')
+    @php $table = \App\Models\Student::getIndexTable( empty: true ) @endphp
+
+    <x-crud-table :table="$table" :ajax="true"/>
 @endsection
 
 

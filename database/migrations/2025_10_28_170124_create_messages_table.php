@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->boolean( 'show_background' )->default( false );
 //            $table->json( 'attachments' )->nullable();;
             $table->tinyInteger( 'priority' )->unsigned()->default( 0 );
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }

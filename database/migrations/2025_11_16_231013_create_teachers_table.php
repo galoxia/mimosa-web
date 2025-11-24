@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->string( 'surname2' )->nullable();
             $table->integer( 'teacher_number' )->nullable();
             $table->text( 'observations' )->nullable();
+            $table->text( 'search_text' )->nullable();
 			$table->timestamps();
 		} );
 	}

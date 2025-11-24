@@ -33,6 +33,10 @@
 
     @switch($type)
         @case('select')
+            @php
+                $options = $config['options'] ?? [];
+                $options = is_callable( $options ) ? $options() : $options;
+            @endphp
             <select
                 id="{{ $name }}" name="{{ sprintf('%s%s', $name, $isMultiple ? '[]' : '') }}"
                 class="form-control form-select {{ $config['class'] ?? '' }}"
@@ -43,7 +47,7 @@
                     <option value="" hidden>{{ $config['placeholder'] }}</option>
                 @endif
 
-                @foreach ($config['options'] ?? [] as $id => $label)
+                @foreach ($options as $id => $label)
                     <option value="{{ $id }}" {{ in_array((string) $id, $values) ? 'selected' : '' }}>
                         {{ $label }}
                     </option>

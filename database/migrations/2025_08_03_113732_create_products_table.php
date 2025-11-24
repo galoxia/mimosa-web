@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->decimal( 'price' );
             $table->tinyInteger( 'discount' )->default( 0 );
             $table->text( 'concepts' )->nullable();
+            $table->text( 'search_text' )->nullable();
             $table->timestamps();
         } );
     }
