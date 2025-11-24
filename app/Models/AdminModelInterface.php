@@ -12,7 +12,7 @@ interface AdminModelInterface
 
     static function getIndexDefinitions(): array;
 
-    static function getIndexOrderBy(): array;
+//    static function getIndexOrderBy(): array;
 
     static function getSingularName(): string;
 

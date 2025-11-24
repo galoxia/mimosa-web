@@ -28,9 +28,5 @@
         </div>
     </div>
 
-    @if($table['rows'] ?? null)
-        <x-crud-table :table="$table"/>
-    @else
-        <x-alert>No se encontraron {{ $pluralName }} en la base de datos.</x-alert>
-    @endif
+    <x-crud-table :table="$table"/>
 @endsection

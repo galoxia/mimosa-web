@@ -205,8 +205,6 @@ class Calendar extends Model implements AdminModelInterface
 
     protected static function booted(): void
     {
-        parent::booted();
-
         static::saved( function ( Calendar $calendar ) {
             $calendar->updateSchedules();
         } );

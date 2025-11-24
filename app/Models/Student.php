@@ -158,18 +158,19 @@ class Student extends Model implements AdminModelInterface
     }
 
 
-    static function filterIndexBuilder( array &$filters, $builder ): Builder
-    {
-        // Si estamos en una ventana de edición, entonces la tabla es un listado "hijo".
-        // En ese caso sí filtraremos (además) por los alumnos más recientes.
-        $editing = request()->query( 'id' ) && request()->query( 'model' );
-
-        if ( /*!$filters ||*/ $editing ) {
-            $builder->newest();
-        }
-
-        return $builder;
-    }
+//    static function filterIndexBuilder( array &$filters, $builder ): Builder
+//    {
+//        // Si estamos en una ventana de edición, entonces la tabla es un listado "hijo".
+//        // En ese caso sí filtraremos (además) por los alumnos más recientes.
+////        $editing = request( 'foreign_key' ) && request( 'foreign_id' );
+//
+////        if ( /*!$filters ||*/ $editing ) {
+//        if ( !$filters ) {
+//            $builder->newest();
+//        }
+//
+//        return $builder;
+//    }
 
     protected static function getIndexRelations(): array
     {

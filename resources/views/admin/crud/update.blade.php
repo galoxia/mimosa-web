@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <x-crud-table :table="$config['table']"></x-crud-table>
+            <x-crud-table :table="$config['table']" :foreign_key="$foreign_key" :foreign_id="$foreign_id"/>
         </div>
     @endforeach
 @endsection

@@ -36,7 +36,7 @@ class Institution extends Model implements AdminModelInterface
             'name' => [
                 'label' => 'Nombre'
             ],
-            'degree_count' => [
+            'degrees_count' => [
                 'type' => 'collection',
                 'label' => '#Carreras'
             ],

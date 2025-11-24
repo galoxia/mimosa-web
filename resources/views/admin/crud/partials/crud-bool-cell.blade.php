@@ -1,5 +1,5 @@
 @php
-    $value = $config['value'];
+    $value = $config['field_value'];
 @endphp
 <x-badge :variant="$value ? 'success' : 'danger'">
     {{ $value ? 'Sí' : 'No' }}

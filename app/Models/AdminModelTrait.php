@@ -66,8 +66,7 @@ trait AdminModelTrait
                 'singularName' => $model::getSingularName(),
                 'pluralName' => $model::getPluralName(),
                 'creatable' => $model::isCreatable(),
-                // Filtramos la tabla para que solo muestre los registros de la colección.
-                'table' => $model::getIndexTable( /*[ [ $this->getForeignKey(), '=', $this->id ] ]*/ ),
+                'table' => $model::getIndexTable( empty: true ),
             ];
         }
         return $collections;
@@ -188,13 +187,11 @@ trait AdminModelTrait
         $builder = $model::with( $model::getIndexRelations() )->withCount( $model::getIndexCollections() );
         // Permite a las clases hijas redefinir $filters o añadir condiciones directamente al $builder
         self::filterIndexBuilder( $filters, $builder );
-        // ¿Estamos en la ventana de edición de un modelo "padre"?
-        $id = request()->query( 'id' );
-        /** @var class-string<AdminModelInterface> $parentModel */
-        $parentModel = request()->query( 'model' );
-        // Filtraremos solo los registros asociados al modelo padre. La relación por clave foránea debería existir
-        if ( $id && $parentModel ) {
-            $filters[] = [ ( new $parentModel )->getForeignKey(), '=', $id ];
+        // Si estamos editando un modelo padre, filtramos por su foreign_key/foreign_id.
+        $foreign_key = request( 'foreign_key' );
+        $foreign_id = request( 'foreign_id' );
+        if ( $foreign_key && $foreign_id ) {
+            $filters[] = [ $foreign_key, '=', $foreign_id ];
         }
         // Aplicamos los filtros calculados
         foreach ( $filters as $filter ) {
@@ -205,14 +202,20 @@ trait AdminModelTrait
         return $builder;
     }
 
-//    static function getDefaultFilters(): array
-//    {
-//        return [];
-//    }
-
-    static function getIndexOrderBy(): array
+    private static function addOrderBy( Builder $builder, array $orderBy = [] ): void
     {
-        return [ [ 'created_at', 'desc' ] ];
+        $orderByEntries = [];
+        if ( !$orderBy ) {
+            $orderByEntries[] = [ 'created_at', 'desc' ];
+        } else {
+            $columns = array_keys( self::getIndexDefinitions() );
+            foreach ( $orderBy as $entry ) {
+                $orderByEntries[] = [ self::getOrderByField( $columns[ $entry['column'] ] ), $entry['dir'] ];
+            }
+        }
+        foreach ( $orderByEntries as $entry ) {
+            $builder->orderBy( ...$entry );
+        }
     }
 
     static function getIndexTable(
@@ -238,13 +241,14 @@ trait AdminModelTrait
         }
 
         $builder = $model::getIndexBuilder( $filters );
-        foreach ( $model::getIndexOrderBy() as $entry ) {
-            $builder->orderBy( ...$entry );
+        $table['totalCount'] = $builder->count();
+
+        // Añadimos las claúsulas de ordenación y filtramos por el texto de búsqueda global (si aplica)
+        self::addOrderBy( $builder, $orderBy );
+        if ( $searchText ) {
+            $builder->where( 'search_text', 'like', "%$searchText%" );
         }
 
-        $table['totalCount'] = $builder->count();
-        // TODO: Añadir los filtros según la búsqueda global de DataTables.
-        //...
         $table['filteredCount'] = $builder->count();
 
         /** @var Collection<int, AdminModelInterface> $entities */
@@ -254,7 +258,7 @@ trait AdminModelTrait
             ->get();
 
         foreach ( $entities as $entity ) {
-            $table['rows'][] = array_column( $entity->getIndexFields(), 'value' );
+            $table['rows'][] = array_column( $entity->getIndexFields( $searchText ), 'value' );
         }
 
         return $table;
@@ -301,7 +305,7 @@ trait AdminModelTrait
     /**
      * @throws Throwable
      */
-    function getIndexFields(): array
+    function getIndexFields( string $searchText = '' ): array
     {
         $definitions = self::getIndexDefinitions();
         $editing = request()->query( 'id' ) && request()->query( 'model' );
@@ -310,7 +314,11 @@ trait AdminModelTrait
         foreach ( $definitions as $field => &$config ) {
             if ( $field !== '_all' ) {
                 $type = isset( $config['component'] ) ? 'component' : ( $config['type'] ?? 'text' );
-                $config['value'] = isset( $config['getter'] ) ? $config['getter']( $this ) : $this->{$field};
+                $config['field_value'] = isset( $config['getter'] ) ? $config['getter']( $this ) : $this->{$field};
+                $config['value'] = (string)$config['field_value'];
+                if ( $searchText ) {
+                    $config['value'] = preg_replace( "/($searchText)/i", "<mark>$1</mark>", $config['value'] );
+                }
                 // Pasamos el valor por la plantilla de celda para obtener el valor definitivo
                 if ( view()->exists( "admin.crud.partials.crud-$type-cell" ) ) {
                     $config['value'] = view( "admin.crud.partials.crud-$type-cell", compact( 'config', 'redirect_url' ) )->render();
@@ -405,9 +413,11 @@ trait AdminModelTrait
 
     protected static function isOrderable( string $field, array $config ): bool
     {
+        // TODO: Los tipos "relation" los ponemos como no ordenables de momento porque el orden es por ID en vez de por el nombre del modelo relacionado.
+        //   Con joins se podría ordenar por el nombre del modelo relacionado pero, salvo petición en contra, lo dejamos así.
         return
             ( $config['orderable'] ?? true ) &&
-            ( $config['type'] ?? 'text' !== 'collection' ) &&
+            !in_array( $config['type'] ?? 'text', [ 'collection', 'relation' ] ) &&
             ( !( $config['getter'] ?? false ) || ( $config['orderable'] ?? false ) ) &&
             !preg_match( '/(observations|description)$/', $field );
     }
@@ -463,7 +473,7 @@ trait AdminModelTrait
         return $defs;
     }
 
-    protected static function booted(): void
+    protected static function bootAdminModelTrait(): void
     {
         static::saving( function ( $entity ) {
             $entity->updateSearchText();

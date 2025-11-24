@@ -166,7 +166,7 @@ class Message extends Model implements AdminModelInterface
                 'getter' => fn( Message $message ) => sprintf( '%s%s', substr( $message->body, 0, 50 ), strlen( $message->body ) > 50 ? '...' : '' ),
                 'searchable' => false,
             ],
-            'attachment_count' => [
+            'attachments_count' => [
                 'label' => '#Adjuntos',
                 'getter' => fn( Message $message ) => count( $message->attachments ?? [] ),
             ],

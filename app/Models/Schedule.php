@@ -287,7 +287,7 @@ class Schedule extends Model implements AdminModelInterface
 
     protected static function booted(): void
     {
-        parent::booted();
+//        parent::booted();
 
         static::updating( function ( Schedule $schedule ) {
 //            if ( !isset( $schedule->appointments_count ) ) {

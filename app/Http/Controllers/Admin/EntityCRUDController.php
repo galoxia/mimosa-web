@@ -34,7 +34,8 @@ class EntityCRUDController extends Controller
             'pluralName' => $model::getPluralName(),
             'singularName' => $model::getSingularName(),
             'creatable' => $model::isCreatable(),
-            'table' => $model::getIndexTable( session( "filters.$model.parsed", [] ) ),
+//            'table' => $model::getIndexTable( session( "filters.$model.parsed", [] ) ),
+            'table' => $model::getIndexTable( empty: true ),
         ] ) );
     }
 
@@ -421,18 +422,19 @@ class EntityCRUDController extends Controller
      */
     public function datatable( Request $request )
     {
-        $posted = $request->post();
         /** @var class-string<AdminModelInterface> $model */
-        $model = $posted['model'];
+        $model = $request['model'];
 
         $table = $model::getIndexTable(
             session( "filters.$model.parsed", [] ),
-            $posted['start'],
-            $posted['length'],
+            $request['start'],
+            $request['length'],
+            $request['search']['value'] ?? '',
+            $request['order'],
         );
 
         return response()->json( [
-            'draw' => (int)$posted['draw'],
+            'draw' => (int)$request['draw'],
             'recordsTotal' => $table['totalCount'],
             'recordsFiltered' => $table['filteredCount'],
             'data' => $table['rows'],

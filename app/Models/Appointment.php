@@ -170,7 +170,7 @@ class Appointment extends Model implements AdminModelInterface
 
     protected static function booted(): void
     {
-        parent::booted();
+//        parent::booted();
 
         static::creating( function ( Appointment $appointment ) {
             // Si el usuario es Admin, puede generar todas las citas que quiera. Los estudiantes solo pueden generar una.

@@ -1,8 +1,9 @@
 export default function initDataTables() {
-    const $dataTables = $( '.js-datatable' );
+    // const $dataTables = $( '.js-datatable' );
     const $ajaxDataTables = $( '.js-ajax-datatable' );
 
-    if ( !$dataTables.length && !$ajaxDataTables.length ) return;
+    // if ( !$dataTables.length && !$ajaxDataTables.length ) return;
+    if ( !$ajaxDataTables.length ) return;
 
     ( async () => {
         const [ { default: DataTable }, , , { default: language } ] = await Promise.all( [
@@ -18,27 +19,22 @@ export default function initDataTables() {
         // En la paginación, dejamos los valores de la versión en inglés.
         delete language.paginate;
 
-        $dataTables.each( function ( _, element ) {
-            new DataTable( element, {
-                language,
-                // columnDefs: [
-                //     { targets: 'js-dt-actions', width: '1%', orderable: false, searchable: false, className: 'actions-col' }
-                // ],
-                // responsive: true,
-                // order: [ [ 0, 'desc' ], [ 1, 'asc' ] ],
-                order: [],
-                fixedColumns: {
-                    start: 1,
-                    end: 1,
-                },
-                scrollX: true,
-                initComplete() {
-                    const $wrapper = $( element ).closest( '.js-wrapper' );
-                    $wrapper.removeClass( 'max-h-[75vh] min-h-[25vh] overflow-y-hidden' );
-                    $wrapper.children( '.spinner' ).addClass( 'hidden' );
-                },
-            } );
-        } );
+        // $dataTables.each( function ( _, element ) {
+        //     new DataTable( element, {
+        //         language,
+        //         order: [],
+        //         fixedColumns: {
+        //             start: 1,
+        //             end: 1,
+        //         },
+        //         scrollX: true,
+        //         initComplete() {
+        //             const $wrapper = $( element ).closest( '.js-wrapper' );
+        //             $wrapper.removeClass( 'max-h-[75vh] min-h-[25vh] overflow-y-hidden' );
+        //             $wrapper.children( '.spinner' ).addClass( 'hidden' );
+        //         },
+        //     } );
+        // } );
 
         $ajaxDataTables.each( function ( _, element ) {
             const $wrapper = $( element ).closest( '.js-wrapper' );
@@ -46,17 +42,18 @@ export default function initDataTables() {
 
             new DataTable( element, {
                 language,
-                // columnDefs: [
-                //     { targets: 'js-dt-actions', width: '1%', orderable: false, searchable: false, className: 'actions-col' }
-                // ],
                 order: [],
+                orderMulti: false,
                 fixedColumns: { start: 1, end: 1 },
                 scrollX: true,
                 initComplete() {
-                    $wrapper.removeClass( 'min-h-[25vh]' );
+                    $wrapper.removeClass( 'max-h-[75vh] min-h-[25vh] overflow-y-hidden' );
                 },
                 ajax: async function ( data, callback, settings ) {
                     data.model = element.dataset.model;
+                    data.foreign_key = element.dataset.foreignKey;
+                    data.foreign_id = element.dataset.foreignId;
+
                     const url = element.dataset.ajaxUrl;
                     const { data: result } = await axios.post( url, data );
                     callback( result );

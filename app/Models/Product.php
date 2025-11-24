@@ -63,7 +63,7 @@ class Product extends Model implements AdminModelInterface
             'price_formatted' => [
                 'label' => 'Precio por defecto',
             ],
-            'concept_count' => [
+            'concepts_count' => [
                 'label' => '#Conceptos',
                 'getter' => fn( Product $product ) => count( array_filter( preg_split( '/\r\n|\r|\n/', $product->concepts ?? '' ) ) ),
             ],
