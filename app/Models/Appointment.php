@@ -138,7 +138,7 @@ class Appointment extends Model implements AdminModelInterface
     {
         // Por defecto seleccionamos las citas del día de hoy
         if ( !$filters ) {
-            $builder->whereHas( 'schedule', fn( $q ) => $q->whereDate( 'schedule_date', now() ) );
+            $builder->whereHas( 'schedule', fn( $q ) => $q->whereDate( 'schedule_date', today() ) );
         }
         return $builder;
     }
